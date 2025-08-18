@@ -1,0 +1,419 @@
+# Rybbit Flutter SDK
+
+The official Flutter client SDK for [Rybbit Analytics](https://rybbit.io) - a modern, open-source web & product analytics platform. Track events, pageviews, and user interactions in your Flutter applications across mobile, web, and desktop.
+
+[![pub package](https://img.shields.io/pub/v/rybbit_flutter.svg)](https://pub.dev/packages/rybbit_flutter)
+[![Dart](https://github.com/rybbit-io/rybbit-flutter/actions/workflows/dart.yml/badge.svg)](https://github.com/rybbit-io/rybbit-flutter/actions/workflows/dart.yml)
+
+## Features
+
+✨ **Comprehensive Analytics Tracking**
+- 📊 Pageview tracking with automatic screen navigation detection
+- 🎯 Custom event tracking with arbitrary properties
+- 🔗 Outbound link tracking (external URLs, deep links, app store links)
+- 👤 User identification and session management
+- 📱 App lifecycle tracking (foreground/background)
+
+🚀 **Mobile-First Design** 
+- 📲 Automatic device information collection (OS, model, screen size)
+- 🌐 Cross-platform support (iOS, Android, Web, Desktop)
+- ⚡ Optimized for mobile networks with retry logic and timeouts
+- 🔄 Automatic route observer integration
+
+🔧 **Developer Experience**
+- 🛠️ Simple singleton API with fluent configuration
+- 🧪 Comprehensive test coverage with mocks
+- 📝 TypeScript-style strongly typed events
+- 🔍 Optional debug logging
+- ⚙️ Extensive configuration options
+
+## Installation
+
+Add `rybbit_flutter` to your `pubspec.yaml`:
+
+```yaml
+dependencies:
+  rybbit_flutter: ^0.1.0
+```
+
+Run:
+
+```bash
+flutter pub get
+```
+
+## Quick Start
+
+### 1. Get Your Credentials
+
+1. Sign up at [Rybbit Analytics](https://app.rybbit.io)
+2. Create a new site/project
+3. Copy your **Site ID** and generate an **API Key**
+
+### 2. Initialize the SDK
+
+```dart
+import 'package:rybbit_flutter/rybbit_flutter.dart';
+
+// Initialize in your main() function or app startup
+await RybbitFlutter.instance.initialize(
+  RybbitConfig(
+    apiKey: 'rb_your_api_key_here',
+    siteId: 'your_site_id',
+    enableLogging: true, // Enable for development
+  ),
+);
+```
+
+### 3. Add Route Observer (Optional)
+
+For automatic screen tracking, add the route observer to your `MaterialApp`:
+
+```dart
+MaterialApp(
+  navigatorObservers: [
+    RybbitFlutter.instance.routeObserver,
+  ],
+  // ... rest of your app
+)
+```
+
+### 4. Start Tracking
+
+```dart
+// Track a pageview manually
+await RybbitFlutter.instance.trackPageView(
+  pathname: '/home',
+  pageTitle: 'Home Screen',
+  queryParams: {
+    'utm_source': 'google',
+    'utm_medium': 'cpc',
+    'utm_campaign': 'spring_sale',
+  },
+);
+
+// Track custom events
+await RybbitFlutter.instance.trackEvent(
+  'button_clicked',
+  properties: {
+    'button_id': 'login_button',
+    'user_type': 'premium',
+    'value': 29.99,
+  },
+);
+
+// Identify users
+RybbitFlutter.instance.identify('user123');
+
+// Track outbound links (web URLs, deep links, app store links)
+await RybbitFlutter.instance.trackOutboundLink(
+  'https://play.google.com/store/apps/details?id=com.example.app',
+  text: 'Download Our App',
+);
+```
+
+## Usage Examples
+
+### Configuration Options
+
+```dart
+const config = RybbitConfig(
+  apiKey: 'rb_your_api_key_here',
+  siteId: 'your_site_id',
+  
+  // Optional: Custom analytics server
+  analyticsHost: 'https://analytics.yourcompany.com',
+  
+  // Optional: Network and retry settings
+  requestTimeout: Duration(seconds: 15),
+  maxRetries: 5,
+  
+  // Optional: Feature flags
+  trackScreenViews: true,      // Auto-track route changes
+  trackAppLifecycle: true,     // Track app foreground/background
+  enableLogging: false,        // Debug logging
+);
+```
+
+### Manual Screen Tracking
+
+If you prefer manual control over screen tracking:
+
+```dart
+// Disable automatic tracking
+const config = RybbitConfig(
+  apiKey: 'rb_your_key',
+  siteId: 'your_site_id',
+  trackScreenViews: false,
+);
+
+// Track screens manually
+class HomeScreen extends StatefulWidget {
+  @override
+  void initState() {
+    super.initState();
+    RybbitFlutter.instance.trackPageView(
+      pathname: '/home',
+      pageTitle: 'Home Screen',
+      queryParams: {
+        'tab': 'featured',
+        'source': 'navigation',
+      },
+    );
+  }
+}
+```
+
+### E-commerce Tracking
+
+```dart
+// Track purchases
+await RybbitFlutter.instance.trackEvent(
+  'purchase',
+  properties: {
+    'transaction_id': 'txn_123',
+    'revenue': 99.99,
+    'currency': 'USD',
+    'items': [
+      {
+        'item_id': 'prod_123',
+        'item_name': 'Premium Plan',
+        'category': 'subscription',
+        'quantity': 1,
+        'price': 99.99,
+      }
+    ],
+  },
+);
+
+// Track cart actions
+await RybbitFlutter.instance.trackEvent(
+  'add_to_cart',
+  properties: {
+    'item_id': 'prod_456',
+    'item_name': 'Widget Pro',
+    'category': 'widgets',
+    'value': 29.99,
+  },
+);
+```
+
+### Outbound Link Tracking
+
+```dart
+// Track external website visits
+await RybbitFlutter.instance.trackOutboundLink(
+  'https://docs.flutter.dev',
+  text: 'Flutter Documentation',
+);
+
+// Track app store links
+await RybbitFlutter.instance.trackOutboundLink(
+  'https://apps.apple.com/app/id123456789',
+  text: 'Download from App Store',
+);
+
+// Track deep links to other apps
+await RybbitFlutter.instance.trackOutboundLink(
+  'instagram://user?username=yourcompany',
+  text: 'Follow on Instagram',
+);
+
+// Track email/phone links
+await RybbitFlutter.instance.trackOutboundLink(
+  'mailto:support@example.com',
+  text: 'Contact Support',
+);
+
+// Track map/navigation links
+await RybbitFlutter.instance.trackOutboundLink(
+  'https://maps.google.com/?q=coffee+near+me',
+  text: 'Find Coffee Nearby',
+);
+```
+
+### User Management
+
+```dart
+// Identify logged-in users
+RybbitFlutter.instance.identify('user_12345');
+
+// Track user properties with events
+await RybbitFlutter.instance.trackEvent(
+  'profile_updated',
+  properties: {
+    'plan_type': 'premium',
+    'account_age_days': 45,
+    'features_enabled': ['advanced_search', 'export'],
+  },
+);
+
+// Clear user ID on logout
+RybbitFlutter.instance.clearUserId();
+```
+
+### Error and Performance Tracking
+
+```dart
+// Track errors
+try {
+  await riskyOperation();
+} catch (e) {
+  await RybbitFlutter.instance.trackEvent(
+    'error_occurred',
+    properties: {
+      'error_type': e.runtimeType.toString(),
+      'error_message': e.toString(),
+      'screen': '/checkout',
+    },
+  );
+  rethrow;
+}
+
+// Track performance metrics
+final stopwatch = Stopwatch()..start();
+await loadData();
+stopwatch.stop();
+
+await RybbitFlutter.instance.trackEvent(
+  'data_load_performance',
+  properties: {
+    'duration_ms': stopwatch.elapsedMilliseconds,
+    'data_size': dataSize,
+    'cache_hit': wasCacheHit,
+  },
+);
+```
+
+## API Reference
+
+### RybbitFlutter
+
+#### Methods
+
+- `initialize(RybbitConfig config)` - Initialize the SDK with configuration
+- `trackPageView({required String pathname, String? pageTitle, String? referrer, Map<String, String>? queryParams})` - Track a page/screen view with optional query parameters
+- `trackEvent(String eventName, {Map<String, dynamic>? properties, String? pathname, String? pageTitle})` - Track a custom event
+- `trackOutboundLink(String url, {String? text, String? pathname})` - Track external link clicks
+- `identify(String userId)` - Associate events with a user ID
+- `clearUserId()` - Clear the current user ID
+- `dispose()` - Clean up resources (call when app is disposed)
+
+#### Query Parameters
+
+The `queryParams` parameter accepts a `Map<String, String>` and automatically converts it to a proper query string format:
+
+```dart
+await RybbitFlutter.instance.trackPageView(
+  pathname: '/products',
+  queryParams: {
+    'utm_source': 'google',
+    'utm_medium': 'cpc',
+    'utm_campaign': 'spring_sale',
+    'category': 'electronics',
+  },
+);
+// Automatically becomes: ?utm_source=google&utm_medium=cpc&utm_campaign=spring_sale&category=electronics
+```
+
+#### Properties
+
+- `isInitialized` - Whether the SDK has been initialized
+- `userId` - Current user ID (if set)
+- `routeObserver` - Route observer for automatic screen tracking
+
+### RybbitConfig
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `apiKey` | String | ✅ | - | Your Rybbit API key |
+| `siteId` | String | ✅ | - | Your Rybbit site ID |
+| `analyticsHost` | String | ❌ | `https://app.rybbit.io` | Analytics server URL |
+| `enableLogging` | bool | ❌ | `false` | Enable debug logging |
+| `requestTimeout` | Duration | ❌ | `10s` | Network request timeout |
+| `maxRetries` | int | ❌ | `3` | Max retry attempts |
+| `trackScreenViews` | bool | ❌ | `true` | Auto-track route changes |
+| `trackAppLifecycle` | bool | ❌ | `true` | Track app state changes |
+
+## Platform Support
+
+| Platform | Support | Notes |
+|----------|---------|-------|
+| ✅ Android | Full | Device info, screen metrics, deep links |
+| ✅ iOS | Full | Device info, screen metrics, deep links |
+| ✅ Web | Full | Full outbound link tracking |
+| ✅ macOS | Full | Desktop support |
+| ✅ Windows | Full | Desktop support |
+| ✅ Linux | Full | Desktop support |
+
+## Troubleshooting
+
+### Common Issues
+
+**Events not appearing in dashboard:**
+1. Verify your API key and Site ID are correct
+2. Check network connectivity
+3. Enable logging to see debug information
+4. Ensure you're calling `initialize()` before tracking events
+
+**Route observer not working:**
+1. Make sure you've added the route observer to `MaterialApp`
+2. Verify routes have `settings.name` defined
+3. Check that `trackScreenViews` is enabled
+
+**Build errors:**
+1. Run `flutter pub get` after adding the dependency
+2. Check that your Flutter SDK version meets requirements (≥3.7.2)
+3. For web builds, ensure CORS is properly configured on your analytics server
+
+### Debug Mode
+
+Enable debug logging to troubleshoot issues:
+
+```dart
+const config = RybbitConfig(
+  apiKey: 'rb_your_key',
+  siteId: 'your_site_id',
+  enableLogging: true,
+);
+```
+
+This will print detailed information about:
+- Initialization status
+- Event tracking attempts
+- Network requests and responses
+- Error details
+
+## Contributing
+
+Contributions are welcome! Please read our [contributing guide](CONTRIBUTING.md) for details on our development process and how to submit pull requests.
+
+### Development Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/rybbit-io/rybbit-flutter.git
+cd rybbit-flutter
+
+# Install dependencies
+flutter pub get
+
+# Run tests
+flutter test
+
+# Run analysis
+flutter analyze
+```
+
+## Support
+
+- 📧 **Email**: support@rybbit.io
+- 📖 **Documentation**: [docs.rybbit.io](https://docs.rybbit.io)
+- 🐛 **Issues**: [GitHub Issues](https://github.com/rybbit-io/rybbit-flutter/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/rybbit-io/rybbit-flutter/discussions)
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
