@@ -1,17 +1,19 @@
 import 'dart:convert';
 
 /// The type of tracking event.
-enum EventType { 
+enum EventType {
   /// A pageview event for tracking screen/page visits.
-  pageview, 
+  pageview,
+
   /// A custom event for tracking user interactions.
-  customEvent, 
+  customEvent,
+
   /// An outbound link click event.
-  outbound 
+  outbound
 }
 
 /// Represents a tracking event that can be sent to Rybbit Analytics.
-/// 
+///
 /// Contains all the data associated with an analytics event including
 /// user information, page context, and custom properties.
 class TrackEvent {
@@ -92,7 +94,7 @@ class TrackEvent {
   });
 
   /// Creates a pageview tracking event.
-  /// 
+  ///
   /// Used to track when users visit different screens or pages in your app.
   TrackEvent.pageview({
     required this.siteId,
@@ -113,7 +115,7 @@ class TrackEvent {
         properties = null;
 
   /// Creates a custom event for tracking user interactions.
-  /// 
+  ///
   /// Use this for tracking button clicks, form submissions, purchases, etc.
   TrackEvent.customEvent({
     required this.siteId,
@@ -134,7 +136,7 @@ class TrackEvent {
   }) : type = EventType.customEvent;
 
   /// Creates an outbound link tracking event.
-  /// 
+  ///
   /// Used to track when users click links that lead outside your app.
   TrackEvent.outbound({
     required this.siteId,

@@ -1,33 +1,33 @@
 /// Configuration class for the Rybbit Flutter SDK.
-/// 
+///
 /// Contains all the settings needed to initialize and configure the SDK.
 class RybbitConfig {
   /// Your Rybbit API key for authentication.
   final String apiKey;
-  
+
   /// Your Rybbit site ID.
   final String siteId;
-  
+
   /// The analytics host URL. Defaults to 'https://app.rybbit.io'.
   final String analyticsHost;
-  
+
   /// Whether to enable debug logging. Defaults to false.
   final bool enableLogging;
-  
+
   /// Timeout for HTTP requests. Defaults to 10 seconds.
   final Duration requestTimeout;
-  
+
   /// Maximum number of retry attempts for failed requests. Defaults to 3.
   final int maxRetries;
-  
+
   /// Whether to automatically track screen navigation. Defaults to true.
   final bool trackScreenViews;
-  
+
   /// Whether to track app lifecycle events (foreground/background). Defaults to true.
   final bool trackAppLifecycle;
 
   /// Creates a new RybbitConfig instance.
-  /// 
+  ///
   /// [apiKey] and [siteId] are required. All other parameters have sensible defaults.
   const RybbitConfig({
     required this.apiKey,
