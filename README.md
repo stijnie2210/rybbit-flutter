@@ -379,7 +379,7 @@ Contributions are welcome! Please read our [contributing guide](CONTRIBUTING.md)
 
 ```bash
 # Clone the repository
-git clone https://github.com/rybbit-io/rybbit-flutter.git
+git clone https://github.com/stijnie2210/rybbit-flutter.git
 cd rybbit-flutter
 
 # Install dependencies
