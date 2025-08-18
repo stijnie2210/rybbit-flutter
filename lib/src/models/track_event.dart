@@ -93,9 +93,9 @@ class TrackEvent {
     this.userAgent,
     this.ipAddress,
     this.apiKey,
-  }) : type = EventType.pageview,
-       eventName = null,
-       properties = null;
+  })  : type = EventType.pageview,
+        eventName = null,
+        properties = null;
 
   TrackEvent.customEvent({
     required this.siteId,
@@ -130,9 +130,9 @@ class TrackEvent {
     this.userAgent,
     this.ipAddress,
     this.apiKey,
-  }) : type = EventType.outbound,
-       eventName = 'outbound_link',
-       properties = outboundProperties;
+  })  : type = EventType.outbound,
+        eventName = 'outbound_link',
+        properties = outboundProperties;
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{

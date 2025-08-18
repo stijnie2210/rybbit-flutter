@@ -67,29 +67,35 @@ class RybbitFlutter with WidgetsBindingObserver {
         final browserName = webBrowserInfo.browserName.toString();
         final browserVersion = webBrowserInfo.appVersion.toString();
         final platform = webBrowserInfo.platform.toString();
-        
-        _userAgent = 'Mozilla/5.0 ($platform) $browserName/$browserVersion ${packageInfo.appName}/${packageInfo.version}';
+
+        _userAgent =
+            'Mozilla/5.0 ($platform) $browserName/$browserVersion ${packageInfo.appName}/${packageInfo.version}';
       } else if (Platform.isAndroid) {
         final androidInfo = await deviceInfo.androidInfo;
         final androidVersion = androidInfo.version.release;
         final deviceModel = androidInfo.model;
         final manufacturer = androidInfo.manufacturer;
-        
+
         // For native Android apps, create user agent that identifies as app, not browser
-        _userAgent = '${packageInfo.appName}/${packageInfo.version} (Linux; Android $androidVersion; $manufacturer $deviceModel) Flutter';
+        _userAgent =
+            '${packageInfo.appName}/${packageInfo.version} (Linux; Android $androidVersion; $manufacturer $deviceModel) Flutter';
       } else if (Platform.isIOS) {
         final iosInfo = await deviceInfo.iosInfo;
         final iosVersion = iosInfo.systemVersion;
         final deviceModel = iosInfo.model;
-        
+
         // For native iOS apps, create user agent that identifies as app, not browser
-        _userAgent = '${packageInfo.appName}/${packageInfo.version} ($deviceModel; iOS $iosVersion) Flutter';
+        _userAgent =
+            '${packageInfo.appName}/${packageInfo.version} ($deviceModel; iOS $iosVersion) Flutter';
       } else if (Platform.isMacOS) {
-        _userAgent = '${packageInfo.appName}/${packageInfo.version} (Macintosh; macOS) Flutter';
+        _userAgent =
+            '${packageInfo.appName}/${packageInfo.version} (Macintosh; macOS) Flutter';
       } else if (Platform.isWindows) {
-        _userAgent = '${packageInfo.appName}/${packageInfo.version} (Windows NT 10.0; Win64; x64) Flutter';
+        _userAgent =
+            '${packageInfo.appName}/${packageInfo.version} (Windows NT 10.0; Win64; x64) Flutter';
       } else if (Platform.isLinux) {
-        _userAgent = '${packageInfo.appName}/${packageInfo.version} (Linux x86_64) Flutter';
+        _userAgent =
+            '${packageInfo.appName}/${packageInfo.version} (Linux x86_64) Flutter';
       } else {
         _userAgent = '${packageInfo.appName}/${packageInfo.version}';
       }
