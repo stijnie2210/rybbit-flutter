@@ -409,8 +409,8 @@ flutter analyze
 
 - 📧 **Email**: support@rybbit.io
 - 📖 **Documentation**: [docs.rybbit.io](https://docs.rybbit.io)
-- 🐛 **Issues**: [GitHub Issues](https://github.com/rybbit-io/rybbit-flutter/issues)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/rybbit-io/rybbit-flutter/discussions)
+- 🐛 **Issues**: [GitHub Issues](https://github.com/stijnie2210/rybbit-flutter/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/stijnie2210/rybbit-flutter/discussions)
 
 ## License
 
