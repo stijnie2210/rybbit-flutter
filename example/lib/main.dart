@@ -3,7 +3,7 @@ import 'package:rybbit_flutter/rybbit_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Initialize Rybbit Analytics
   await RybbitFlutter.instance.initialize(
     RybbitConfig(
@@ -14,7 +14,7 @@ void main() async {
       trackAppLifecycle: true,
     ),
   );
-  
+
   runApp(const MyApp());
 }
 
@@ -30,9 +30,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       // Add the route observer for automatic screen tracking
-      navigatorObservers: [
-        RybbitFlutter.instance.routeObserver,
-      ],
+      navigatorObservers: [RybbitFlutter.instance.routeObserver],
       home: const MyHomePage(title: 'Rybbit Flutter Example'),
       routes: {
         '/second': (context) => const SecondPage(),
@@ -62,10 +60,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _trackPageView() {
-    RybbitFlutter.instance.trackPageView(
-      pathname: '/',
-      pageTitle: 'Home Page',
-    );
+    RybbitFlutter.instance.trackPageView(pathname: '/', pageTitle: 'Home Page');
   }
 
   void _incrementCounter() {
@@ -88,12 +83,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _identifyUser() {
     // Example of user identification
-    RybbitFlutter.instance.identify('user_${DateTime.now().millisecondsSinceEpoch}');
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('User identified!')),
+    RybbitFlutter.instance.identify(
+      'user_${DateTime.now().millisecondsSinceEpoch}',
     );
-    
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('User identified!')));
+
     // Track the identification event
     RybbitFlutter.instance.trackEvent(
       'user_identified',
@@ -108,10 +105,10 @@ class _MyHomePageState extends State<MyHomePage> {
       text: 'Visit Rybbit',
       pathname: '/',
     );
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Outbound link tracked!')),
-    );
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Outbound link tracked!')));
   }
 
   @override
@@ -125,9 +122,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
+            const Text('You have pushed the button this many times:'),
             Text(
               '$_counter',
               style: Theme.of(context).textTheme.headlineMedium,
@@ -198,7 +193,7 @@ class SecondPage extends StatelessWidget {
                     'element': 'custom_event_button',
                   },
                 );
-                
+
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Custom event tracked!')),
                 );
