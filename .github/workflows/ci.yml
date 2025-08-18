@@ -12,7 +12,7 @@ jobs:
     
     strategy:
       matrix:
-        flutter-version: ['3.7.2', 'stable']
+        flutter-version: ['3.7.12', '3.24.3']
     
     steps:
     - uses: actions/checkout@v4
@@ -21,6 +21,7 @@ jobs:
       uses: subosito/flutter-action@v2
       with:
         flutter-version: ${{ matrix.flutter-version }}
+        channel: 'stable'
         cache: true
     
     - name: Install dependencies
@@ -44,7 +45,8 @@ jobs:
     - name: Setup Flutter
       uses: subosito/flutter-action@v2
       with:
-        flutter-version: 'stable'
+        flutter-version: '3.24.3'
+        channel: 'stable'
         cache: true
     
     - name: Install dependencies
