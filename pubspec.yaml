@@ -24,9 +24,4 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
-  
-  # Web WASM compilation support
-  web:
-    # Enable WASM compilation for better performance
-    wasm: true
 

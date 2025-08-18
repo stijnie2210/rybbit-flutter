@@ -27,6 +27,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **CI/CD Pipeline**: Improved GitHub Actions workflows with comprehensive testing
 
 ### Fixed
+- **WASM Compatibility**: Fixed compatibility with Flutter's WebAssembly compilation by:
+  - Removing direct `dart:io` imports that aren't WASM-compatible
+  - Adding conditional imports for platform-specific code
+  - Creating web-compatible stubs for device and package info
 - **Flutter Version Compatibility**: Updated minimum requirements to Flutter 3.22.0+ for stable WASM support
 - **Package Dependencies**: Resolved flutter_lints version conflicts for better CI stability
 - **Documentation Issues**: Fixed pub.dev documentation score from 32.1% to 80%+

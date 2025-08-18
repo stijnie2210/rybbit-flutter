@@ -1,12 +1,16 @@
 import 'dart:convert';
 import 'dart:developer' as developer;
-import 'dart:io';
 
-import 'package:device_info_plus/device_info_plus.dart';
+import 'package:device_info_plus/device_info_plus.dart' if (dart.library.html) 'device_info_web.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
-import 'package:package_info_plus/package_info_plus.dart';
+import 'package:package_info_plus/package_info_plus.dart' if (dart.library.html) 'package_info_web.dart';
+
+// Conditional imports for WASM compatibility
+import 'platform_stub.dart'
+    if (dart.library.io) 'platform_io.dart'
+    if (dart.library.html) 'platform_web.dart';
 
 import 'models/screen_info.dart';
 import 'models/track_event.dart';
@@ -99,7 +103,7 @@ class RybbitFlutter with WidgetsBindingObserver {
 
         _userAgent =
             'Mozilla/5.0 ($platform) $browserName/$browserVersion ${packageInfo.appName}/${packageInfo.version}';
-      } else if (Platform.isAndroid) {
+      } else if (PlatformInfo.isAndroid) {
         final androidInfo = await deviceInfo.androidInfo;
         final androidVersion = androidInfo.version.release;
         final deviceModel = androidInfo.model;
@@ -108,7 +112,7 @@ class RybbitFlutter with WidgetsBindingObserver {
         // For native Android apps, create user agent that identifies as app, not browser
         _userAgent =
             '${packageInfo.appName}/${packageInfo.version} (Linux; Android $androidVersion; $manufacturer $deviceModel) Flutter';
-      } else if (Platform.isIOS) {
+      } else if (PlatformInfo.isIOS) {
         final iosInfo = await deviceInfo.iosInfo;
         final iosVersion = iosInfo.systemVersion;
         final deviceModel = iosInfo.model;
@@ -116,13 +120,13 @@ class RybbitFlutter with WidgetsBindingObserver {
         // For native iOS apps, create user agent that identifies as app, not browser
         _userAgent =
             '${packageInfo.appName}/${packageInfo.version} ($deviceModel; iOS $iosVersion) Flutter';
-      } else if (Platform.isMacOS) {
+      } else if (PlatformInfo.isMacOS) {
         _userAgent =
             '${packageInfo.appName}/${packageInfo.version} (Macintosh; macOS) Flutter';
-      } else if (Platform.isWindows) {
+      } else if (PlatformInfo.isWindows) {
         _userAgent =
             '${packageInfo.appName}/${packageInfo.version} (Windows NT 10.0; Win64; x64) Flutter';
-      } else if (Platform.isLinux) {
+      } else if (PlatformInfo.isLinux) {
         _userAgent =
             '${packageInfo.appName}/${packageInfo.version} (Linux x86_64) Flutter';
       } else {
@@ -181,7 +185,7 @@ class RybbitFlutter with WidgetsBindingObserver {
       userAgent: _userAgent,
       userId: _userId,
       apiKey: _config.apiKey,
-      language: Platform.localeName,
+      language: PlatformInfo.localeName,
     );
 
     await _sendTrackingEvent(event);
@@ -215,7 +219,7 @@ class RybbitFlutter with WidgetsBindingObserver {
       userAgent: _userAgent,
       userId: _userId,
       apiKey: _config.apiKey,
-      language: Platform.localeName,
+      language: PlatformInfo.localeName,
     );
 
     await _sendTrackingEvent(event);
@@ -250,7 +254,7 @@ class RybbitFlutter with WidgetsBindingObserver {
       userAgent: _userAgent,
       userId: _userId,
       apiKey: _config.apiKey,
-      language: Platform.localeName,
+      language: PlatformInfo.localeName,
     );
 
     await _sendTrackingEvent(event);
