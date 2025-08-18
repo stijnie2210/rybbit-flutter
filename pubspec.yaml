@@ -6,8 +6,8 @@ repository: https://github.com/rybbit-io/rybbit-flutter
 documentation: https://docs.rybbit.io
 
 environment:
-  sdk: ^3.7.2
-  flutter: ">=1.17.0"
+  sdk: ^3.0.0
+  flutter: ">=3.0.0"
 
 dependencies:
   flutter:
