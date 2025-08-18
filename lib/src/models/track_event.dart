@@ -9,7 +9,7 @@ enum EventType {
   customEvent,
 
   /// An outbound link click event.
-  outbound
+  outbound,
 }
 
 /// Represents a tracking event that can be sent to Rybbit Analytics.
@@ -110,9 +110,9 @@ class TrackEvent {
     this.userAgent,
     this.ipAddress,
     this.apiKey,
-  })  : type = EventType.pageview,
-        eventName = null,
-        properties = null;
+  }) : type = EventType.pageview,
+       eventName = null,
+       properties = null;
 
   /// Creates a custom event for tracking user interactions.
   ///
@@ -153,9 +153,9 @@ class TrackEvent {
     this.userAgent,
     this.ipAddress,
     this.apiKey,
-  })  : type = EventType.outbound,
-        eventName = 'outbound_link',
-        properties = outboundProperties;
+  }) : type = EventType.outbound,
+       eventName = 'outbound_link',
+       properties = outboundProperties;
 
   /// Converts the event to a JSON representation for sending to the server.
   Map<String, dynamic> toJson() {

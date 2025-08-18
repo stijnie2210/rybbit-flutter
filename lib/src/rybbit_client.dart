@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'dart:developer' as developer;
 
-import 'package:device_info_plus/device_info_plus.dart' if (dart.library.html) 'device_info_web.dart';
+import 'package:device_info_plus/device_info_plus.dart'
+    if (dart.library.html) 'device_info_web.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
-import 'package:package_info_plus/package_info_plus.dart' if (dart.library.html) 'package_info_web.dart';
+import 'package:package_info_plus/package_info_plus.dart'
+    if (dart.library.html) 'package_info_web.dart';
 
 // Conditional imports for WASM compatibility
 import 'platform_stub.dart'

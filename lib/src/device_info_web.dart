@@ -19,7 +19,7 @@ class WebBrowserInfo {
   String browserName() => 'Unknown';
   String appVersion() => '1.0.0';
   String platform() => 'Web';
-  
+
   @override
   String toString() => 'Web Browser';
 }
