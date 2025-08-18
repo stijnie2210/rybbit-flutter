@@ -375,7 +375,7 @@ This will print detailed information about:
 
 ## Contributing
 
-Contributions are welcome! Please read our [contributing guide](CONTRIBUTING.md) for details on our development process and how to submit pull requests.
+Contributions are welcome! I have no specific contribution guide, but please raise an issue or PR with proper description
 
 ### Development Setup
 
@@ -396,7 +396,7 @@ flutter analyze
 
 ## Support
 
-- 📖 **Documentation**: [docs.rybbit.io](https://docs.rybbit.io)
+- 📖 **Documentation**: [rybbit.io/docs](https://rybbit.io/docs)
 - 🐛 **Issues**: [GitHub Issues](https://github.com/stijnie2210/rybbit-flutter/issues)
 - 💬 **Discussions**: [GitHub Discussions](https://github.com/stijnie2210/rybbit-flutter/discussions)
 
