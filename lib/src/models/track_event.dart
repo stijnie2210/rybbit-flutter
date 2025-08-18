@@ -1,7 +1,19 @@
 import 'dart:convert';
 
-enum EventType { pageview, customEvent, outbound }
+/// The type of tracking event.
+enum EventType { 
+  /// A pageview event for tracking screen/page visits.
+  pageview, 
+  /// A custom event for tracking user interactions.
+  customEvent, 
+  /// An outbound link click event.
+  outbound 
+}
 
+/// Represents a tracking event that can be sent to Rybbit Analytics.
+/// 
+/// Contains all the data associated with an analytics event including
+/// user information, page context, and custom properties.
 class TrackEvent {
   /// The type of tracking event (pageview, customEvent, outbound)
   final EventType type;
@@ -79,6 +91,9 @@ class TrackEvent {
     this.apiKey,
   });
 
+  /// Creates a pageview tracking event.
+  /// 
+  /// Used to track when users visit different screens or pages in your app.
   TrackEvent.pageview({
     required this.siteId,
     this.pathname,
@@ -97,6 +112,9 @@ class TrackEvent {
         eventName = null,
         properties = null;
 
+  /// Creates a custom event for tracking user interactions.
+  /// 
+  /// Use this for tracking button clicks, form submissions, purchases, etc.
   TrackEvent.customEvent({
     required this.siteId,
     required this.eventName,
@@ -115,6 +133,9 @@ class TrackEvent {
     this.apiKey,
   }) : type = EventType.customEvent;
 
+  /// Creates an outbound link tracking event.
+  /// 
+  /// Used to track when users click links that lead outside your app.
   TrackEvent.outbound({
     required this.siteId,
     required Map<String, dynamic> outboundProperties,
@@ -134,6 +155,7 @@ class TrackEvent {
         eventName = 'outbound_link',
         properties = outboundProperties;
 
+  /// Converts the event to a JSON representation for sending to the server.
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{
       'type': _typeToString(type),
@@ -182,6 +204,7 @@ class TrackEvent {
     }
   }
 
+  /// Creates a copy of this event with the specified parameters overridden.
   TrackEvent copyWith({
     EventType? type,
     String? siteId,

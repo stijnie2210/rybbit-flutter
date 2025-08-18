@@ -3,7 +3,7 @@ description: "Flutter client SDK for Rybbit Analytics - track events, pageviews,
 version: 0.1.0
 homepage: https://github.com/stijnie2210/rybbit-flutter
 repository: https://github.com/stijnie2210/rybbit-flutter
-documentation: https://docs.rybbit.io
+documentation: https://rybbit.io/docs
 
 environment:
   sdk: ^3.5.0

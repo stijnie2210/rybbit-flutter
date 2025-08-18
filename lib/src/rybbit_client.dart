@@ -12,6 +12,26 @@ import 'models/screen_info.dart';
 import 'models/track_event.dart';
 import 'rybbit_config.dart';
 
+/// The main entry point for the Rybbit Flutter SDK.
+/// 
+/// This class provides a singleton interface for tracking analytics events,
+/// pageviews, and user interactions in your Flutter application.
+/// 
+/// Example usage:
+/// ```dart
+/// // Initialize the SDK
+/// await RybbitFlutter.instance.initialize(RybbitConfig(
+///   apiKey: 'your-api-key',
+///   siteId: 'your-site-id',
+/// ));
+/// 
+/// // Track a pageview
+/// await RybbitFlutter.instance.trackPageView(pathname: '/home');
+/// 
+/// // Track a custom event
+/// await RybbitFlutter.instance.trackEvent('button_clicked', 
+///   properties: {'button_id': 'header_cta'});
+/// ```
 class RybbitFlutter with WidgetsBindingObserver {
   static RybbitFlutter? _instance;
   late final RybbitConfig _config;
@@ -24,13 +44,22 @@ class RybbitFlutter with WidgetsBindingObserver {
 
   RybbitFlutter._internal();
 
+  /// Gets the singleton instance of RybbitFlutter.
   static RybbitFlutter get instance {
     _instance ??= RybbitFlutter._internal();
     return _instance!;
   }
 
+  /// Returns true if the SDK has been initialized.
   bool get isInitialized => _initialized;
 
+  /// Initializes the Rybbit SDK with the provided configuration.
+  /// 
+  /// This must be called before using any tracking methods.
+  /// 
+  /// [config] - The configuration object containing API key, site ID, and other settings.
+  /// 
+  /// Throws an exception if initialization fails.
   Future<void> initialize(RybbitConfig config) async {
     if (_initialized) {
       _log('RybbitFlutter already initialized');
@@ -124,6 +153,12 @@ class RybbitFlutter with WidgetsBindingObserver {
     );
   }
 
+  /// Tracks a pageview event.
+  /// 
+  /// [pathname] - The page path (e.g., '/home', '/products/123')
+  /// [pageTitle] - Optional page title
+  /// [referrer] - Optional referrer URL
+  /// [queryParams] - Optional query parameters as key-value pairs
   Future<void> trackPageView({
     required String pathname,
     String? pageTitle,
@@ -152,6 +187,12 @@ class RybbitFlutter with WidgetsBindingObserver {
     await _sendTrackingEvent(event);
   }
 
+  /// Tracks a custom event.
+  /// 
+  /// [eventName] - The name of the event (e.g., 'button_clicked', 'purchase_completed')
+  /// [properties] - Optional additional data as key-value pairs
+  /// [pathname] - Optional page path where the event occurred
+  /// [pageTitle] - Optional page title where the event occurred
   Future<void> trackEvent(
     String eventName, {
     Map<String, dynamic>? properties,
@@ -180,6 +221,11 @@ class RybbitFlutter with WidgetsBindingObserver {
     await _sendTrackingEvent(event);
   }
 
+  /// Tracks an outbound link click.
+  /// 
+  /// [url] - The destination URL
+  /// [text] - Optional link text
+  /// [pathname] - Optional page path where the link was clicked
   Future<void> trackOutboundLink(
     String url, {
     String? text,
@@ -210,6 +256,9 @@ class RybbitFlutter with WidgetsBindingObserver {
     await _sendTrackingEvent(event);
   }
 
+  /// Associates a user ID with future tracking events.
+  /// 
+  /// [userId] - A unique identifier for the user
   void identify(String userId) {
     _userId = userId;
     if (_initialized) {
@@ -217,6 +266,7 @@ class RybbitFlutter with WidgetsBindingObserver {
     }
   }
 
+  /// Clears the current user ID association.
   void clearUserId() {
     _userId = null;
     if (_initialized) {
@@ -224,8 +274,13 @@ class RybbitFlutter with WidgetsBindingObserver {
     }
   }
 
+  /// Gets the currently associated user ID, if any.
   String? get userId => _userId;
 
+  /// Gets a route observer for automatic screen tracking.
+  /// 
+  /// Add this to your MaterialApp's navigatorObservers to automatically
+  /// track screen navigation events.
   RouteObserver<PageRoute<dynamic>> get routeObserver {
     _routeObserver ??= _RybbitRouteObserver(this);
     return _routeObserver!;
@@ -314,6 +369,9 @@ class RybbitFlutter with WidgetsBindingObserver {
     }
   }
 
+  /// Disposes of the SDK and cleans up resources.
+  /// 
+  /// Call this when you no longer need the SDK to free up resources.
   void dispose() {
     if (_config.trackAppLifecycle) {
       WidgetsBinding.instance.removeObserver(this);
