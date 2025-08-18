@@ -2,8 +2,8 @@
 
 The official Flutter client SDK for [Rybbit Analytics](https://rybbit.io) - a modern, open-source web & product analytics platform. Track events, pageviews, and user interactions in your Flutter applications across mobile, web, and desktop.
 
-[![pub package](https://img.shields.io/pub/v/rybbit_flutter.svg)](https://pub.dev/packages/rybbit_flutter)
-[![Dart](https://github.com/rybbit-io/rybbit-flutter/actions/workflows/dart.yml/badge.svg)](https://github.com/rybbit-io/rybbit-flutter/actions/workflows/dart.yml)
+<!-- [![pub package](https://img.shields.io/pub/v/rybbit_flutter.svg)](https://pub.dev/packages/rybbit_flutter)
+[![Dart](https://github.com/rybbit-io/rybbit-flutter/actions/workflows/dart.yml/badge.svg)](https://github.com/rybbit-io/rybbit-flutter/actions/workflows/dart.yml) -->
 
 ## Features
 
