@@ -1,0 +1,39 @@
+name: Publish to pub.dev
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    permissions:
+      id-token: write # Required for authentication using OIDC
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: 'stable'
+        cache: true
+    
+    - name: Install dependencies
+      run: flutter pub get
+    
+    - name: Run tests
+      run: flutter test
+    
+    - name: Analyze project source
+      run: flutter analyze --fatal-infos
+    
+    - name: Check formatting
+      run: dart format --output=none --set-exit-if-changed .
+    
+    - name: Verify pub score
+      run: |
+        dart pub global activate pana
+        pana . --no-warning
+    
+    - name: Publish package
+      run: dart pub publish --force
