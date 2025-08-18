@@ -12,7 +12,7 @@ jobs:
     
     strategy:
       matrix:
-        flutter-version: ['3.22.0', '3.35.1']
+        flutter-version: ['3.35.1']
     
     steps:
     - uses: actions/checkout@v4
