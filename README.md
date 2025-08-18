@@ -14,19 +14,6 @@ The official Flutter client SDK for [Rybbit Analytics](https://rybbit.io) - a mo
 - 👤 User identification and session management
 - 📱 App lifecycle tracking (foreground/background)
 
-🚀 **Mobile-First Design** 
-- 📲 Automatic device information collection (OS, model, screen size)
-- 🌐 Cross-platform support (iOS, Android, Web, Desktop)
-- ⚡ Optimized for mobile networks with retry logic and timeouts
-- 🔄 Automatic route observer integration
-
-🔧 **Developer Experience**
-- 🛠️ Simple singleton API with fluent configuration
-- 🧪 Comprehensive test coverage with mocks
-- 📝 TypeScript-style strongly typed events
-- 🔍 Optional debug logging
-- ⚙️ Extensive configuration options
-
 ## Installation
 
 Add `rybbit_flutter` to your `pubspec.yaml`:
