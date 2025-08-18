@@ -27,7 +27,3 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-
-  # Web WASM compilation support
-  web:
-    wasm: true
