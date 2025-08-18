@@ -330,10 +330,32 @@ await RybbitFlutter.instance.trackPageView(
 |----------|---------|-------|
 | ✅ Android | Full | Device info, screen metrics, deep links |
 | ✅ iOS | Full | Device info, screen metrics, deep links |
-| ✅ Web | Full | Full outbound link tracking |
+| ✅ Web | Full | WASM support, full outbound link tracking |
 | ✅ macOS | Full | Desktop support |
 | ✅ Windows | Full | Desktop support |
 | ✅ Linux | Full | Desktop support |
+
+### Web WASM Support
+
+This package supports Flutter's experimental WASM compilation for improved web performance:
+
+```bash
+# Build with WASM support
+flutter build web --wasm
+
+# Or add to your build configuration
+flutter build web --web-renderer canvaskit --wasm
+```
+
+**Benefits of WASM:**
+- ⚡ **Faster execution** - Near-native performance
+- 📦 **Smaller bundle size** - More efficient than JavaScript
+- 🔧 **Better debugging** - Improved development experience
+
+**Requirements:**
+- Flutter 3.22.0 or higher
+- Modern browsers with WASM support
+- Ensure your deployment supports WASM files
 
 ## Troubleshooting
 

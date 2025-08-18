@@ -1,0 +1,33 @@
+name: rybbit_flutter_example
+description: Example app demonstrating the Rybbit Flutter SDK
+
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.5.0
+  flutter: ">=3.22.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # Use the local rybbit_flutter package
+  rybbit_flutter:
+    path: ../
+  
+  # Additional dependencies for the example
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+
+  # Web WASM compilation support
+  web:
+    wasm: true
