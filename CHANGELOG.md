@@ -7,10 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.2.1] - 2025-08-19
 
-- Updated release pipeline version
-
-## [0.2.0] - 2025-08-18
-
 ### Added
 - **Flutter Web WASM Support**: Full compatibility with Flutter's WebAssembly compilation for improved web performance
 - **Comprehensive Example Project**: Complete multi-page Flutter app demonstrating all SDK features
@@ -86,5 +82,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Implements singleton pattern for easy access
 - Full type safety with comprehensive null safety
 
-[0.2.0]: https://github.com/stijnie2210/rybbit-flutter/releases/tag/v0.2.0
+[0.2.1]: https://github.com/stijnie2210/rybbit-flutter/releases/tag/v0.2.1
 [0.1.0]: https://github.com/stijnie2210/rybbit-flutter/releases/tag/v0.1.0

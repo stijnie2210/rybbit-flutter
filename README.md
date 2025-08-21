@@ -1,4 +1,7 @@
-# Rybbit Flutter SDK
+# Rybbit Flutter SDK 
+<a href="https://rybbit.io"><img src="https://www.rybbit.io/rybbit-text.svg" width="100" height="50"/></a>
+
+<a href="https://pub.dev/packages/rybbit_flutter"><img src="https://img.shields.io/pub/v/rybbit_flutter.svg" alt="Pub"></a>
 
 ⚠️ **Note**: This is an **unofficial, community-maintained** Flutter SDK for [Rybbit Analytics](https://rybbit.io). While functional, this package may have incomplete features or limitations compared to the official web SDK. Use at your own discretion.
 
@@ -335,27 +338,8 @@ await RybbitFlutter.instance.trackPageView(
 | ✅ Windows | Full | Desktop support |
 | ✅ Linux | Full | Desktop support |
 
-### Web WASM Support
-
-This package supports Flutter's experimental WASM compilation for improved web performance:
-
-```bash
-# Build with WASM support
-flutter build web --wasm
-
-# Or add to your build configuration
-flutter build web --web-renderer canvaskit --wasm
-```
-
-**Benefits of WASM:**
-- ⚡ **Faster execution** - Near-native performance
-- 📦 **Smaller bundle size** - More efficient than JavaScript
-- 🔧 **Better debugging** - Improved development experience
-
 **Requirements:**
 - Flutter 3.22.0 or higher
-- Modern browsers with WASM support
-- Ensure your deployment supports WASM files
 
 ## Troubleshooting
 
@@ -424,6 +408,6 @@ flutter analyze
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the LGPL-3.0 License - see the [LICENSE](LICENSE) file for details.
 
 ---
