@@ -10,6 +10,9 @@ enum EventType {
 
   /// An outbound link click event.
   outbound,
+
+  /// An error tracking event for capturing application errors.
+  error,
 }
 
 /// Represents a tracking event that can be sent to Rybbit Analytics.
@@ -157,6 +160,28 @@ class TrackEvent {
        eventName = 'outbound_link',
        properties = outboundProperties;
 
+  /// Creates an error tracking event.
+  ///
+  /// Used to track application errors with stack traces and context.
+  TrackEvent.error({
+    required this.siteId,
+    required this.eventName,
+    required Map<String, dynamic> errorProperties,
+    this.pathname,
+    this.hostname,
+    this.pageTitle,
+    this.referrer,
+    this.userId,
+    this.queryParams,
+    this.language,
+    this.screenWidth,
+    this.screenHeight,
+    this.userAgent,
+    this.ipAddress,
+    this.apiKey,
+  }) : type = EventType.error,
+       properties = errorProperties;
+
   /// Converts the event to a JSON representation for sending to the server.
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{
@@ -185,7 +210,7 @@ class TrackEvent {
     if (ipAddress != null) json['ip_address'] = ipAddress;
     if (apiKey != null) json['api_key'] = apiKey;
 
-    if (type == EventType.customEvent || type == EventType.outbound) {
+    if (type == EventType.customEvent || type == EventType.outbound || type == EventType.error) {
       if (eventName != null) json['event_name'] = eventName;
       if (properties != null) {
         json['properties'] = jsonEncode(properties);
@@ -203,6 +228,8 @@ class TrackEvent {
         return 'custom_event';
       case EventType.outbound:
         return 'outbound';
+      case EventType.error:
+        return 'error';
     }
   }
 

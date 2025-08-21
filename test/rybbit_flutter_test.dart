@@ -9,7 +9,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('RybbitConfig', () {
-    test('creates config with required parameters', () {
+    test('creates config with required parameters and defaults', () {
       const config = RybbitConfig(apiKey: 'rb_test123', siteId: '123');
 
       expect(config.apiKey, 'rb_test123');
@@ -17,6 +17,11 @@ void main() {
       expect(config.analyticsHost, 'https://app.rybbit.io');
       expect(config.enableLogging, false);
       expect(config.trackScreenViews, true);
+      expect(config.trackAppLifecycle, true);
+      expect(config.trackQuerystring, true);
+      expect(config.trackOutbound, true);
+      expect(config.autoTrackPageview, true);
+      expect(config.skipPatterns, isEmpty);
     });
 
     test('creates config with custom parameters', () {
@@ -26,6 +31,11 @@ void main() {
         analyticsHost: 'https://custom.host.com',
         enableLogging: true,
         trackScreenViews: false,
+        trackAppLifecycle: false,
+        trackQuerystring: false,
+        trackOutbound: false,
+        autoTrackPageview: false,
+        skipPatterns: ['/debug/*', '/admin/*'],
       );
 
       expect(config.apiKey, 'rb_test456');
@@ -33,6 +43,11 @@ void main() {
       expect(config.analyticsHost, 'https://custom.host.com');
       expect(config.enableLogging, true);
       expect(config.trackScreenViews, false);
+      expect(config.trackAppLifecycle, false);
+      expect(config.trackQuerystring, false);
+      expect(config.trackOutbound, false);
+      expect(config.autoTrackPageview, false);
+      expect(config.skipPatterns, ['/debug/*', '/admin/*']);
     });
 
     test('copyWith creates new config with updated values', () {
@@ -41,12 +56,35 @@ void main() {
       final updated = original.copyWith(
         enableLogging: true,
         trackScreenViews: false,
+        trackQuerystring: false,
+        skipPatterns: ['/skip/*'],
       );
 
       expect(updated.apiKey, 'rb_test789');
       expect(updated.siteId, '789');
       expect(updated.enableLogging, true);
       expect(updated.trackScreenViews, false);
+      expect(updated.trackAppLifecycle, true); // unchanged
+      expect(updated.trackQuerystring, false);
+      expect(updated.trackOutbound, true); // unchanged
+      expect(updated.autoTrackPageview, true); // unchanged
+      expect(updated.skipPatterns, ['/skip/*']);
+    });
+
+    test('copyWith preserves original values when null is passed', () {
+      const original = RybbitConfig(
+        apiKey: 'rb_test999',
+        siteId: '999',
+        trackQuerystring: false,
+        skipPatterns: ['/original/*'],
+      );
+
+      final updated = original.copyWith();
+
+      expect(updated.apiKey, 'rb_test999');
+      expect(updated.siteId, '999');
+      expect(updated.trackQuerystring, false);
+      expect(updated.skipPatterns, ['/original/*']);
     });
   });
 
@@ -94,6 +132,29 @@ void main() {
       expect(event.properties, {
         'url': 'https://example.com',
         'text': 'Visit Example',
+      });
+    });
+
+    test('creates error event', () {
+      final event = TrackEvent.error(
+        siteId: '123',
+        eventName: 'NetworkError',
+        errorProperties: {
+          'message': 'Connection timeout',
+          'stack': 'at main.dart:42',
+          'fileName': 'api_service.dart',
+          'lineNumber': 156,
+        },
+      );
+
+      expect(event.type, EventType.error);
+      expect(event.siteId, '123');
+      expect(event.eventName, 'NetworkError');
+      expect(event.properties, {
+        'message': 'Connection timeout',
+        'stack': 'at main.dart:42',
+        'fileName': 'api_service.dart',
+        'lineNumber': 156,
       });
     });
 

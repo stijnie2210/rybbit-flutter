@@ -21,7 +21,7 @@ class PackageInfo {
     return const PackageInfo(
       appName: 'Flutter App',
       packageName: 'com.example.app',
-      version: '1.0.0',
+      version: '0.3.0',
       buildNumber: '1',
     );
   }

@@ -16,6 +16,7 @@ import 'platform_stub.dart'
 
 import 'models/screen_info.dart';
 import 'models/track_event.dart';
+import 'pattern_matcher.dart';
 import 'rybbit_config.dart';
 
 /// The main entry point for the Rybbit Flutter SDK.
@@ -37,6 +38,10 @@ import 'rybbit_config.dart';
 /// // Track a custom event
 /// await RybbitFlutter.instance.trackEvent('button_clicked',
 ///   properties: {'button_id': 'header_cta'});
+///
+/// // Track an error
+/// await RybbitFlutter.instance.trackError('NetworkError', 'Failed to load data',
+///   stackTrace: stackTrace.toString(), fileName: 'api_service.dart');
 /// ```
 class RybbitFlutter with WidgetsBindingObserver {
   static RybbitFlutter? _instance;
@@ -136,7 +141,7 @@ class RybbitFlutter with WidgetsBindingObserver {
       }
     } catch (e) {
       _log('Failed to setup user agent: $e');
-      _userAgent = 'RybbitFlutter/1.0.0';
+      _userAgent = 'RybbitFlutter/0.3.0';
     }
   }
 
@@ -173,6 +178,12 @@ class RybbitFlutter with WidgetsBindingObserver {
   }) async {
     _ensureInitialized();
 
+    // Check if this path should be skipped
+    if (PatternMatcher.shouldSkipPath(pathname, _config.skipPatterns)) {
+      _log('Skipping pageview for path: $pathname (matches skip pattern)');
+      return;
+    }
+
     final screenInfo = _getScreenInfo();
 
     final event = TrackEvent.pageview(
@@ -181,7 +192,7 @@ class RybbitFlutter with WidgetsBindingObserver {
       hostname: _hostname,
       pageTitle: pageTitle,
       referrer: referrer,
-      queryParams: queryParams,
+      queryParams: _config.trackQuerystring ? queryParams : null,
       screenWidth: screenInfo.width.round(),
       screenHeight: screenInfo.height.round(),
       userAgent: _userAgent,
@@ -206,6 +217,12 @@ class RybbitFlutter with WidgetsBindingObserver {
     String? pageTitle,
   }) async {
     _ensureInitialized();
+
+    // Check if this path should be skipped (if pathname is provided)
+    if (pathname != null && PatternMatcher.shouldSkipPath(pathname, _config.skipPatterns)) {
+      _log('Skipping custom event for path: $pathname (matches skip pattern)');
+      return;
+    }
 
     final screenInfo = _getScreenInfo();
 
@@ -251,6 +268,62 @@ class RybbitFlutter with WidgetsBindingObserver {
       outboundProperties: properties,
       pathname: pathname,
       hostname: _hostname,
+      screenWidth: screenInfo.width.round(),
+      screenHeight: screenInfo.height.round(),
+      userAgent: _userAgent,
+      userId: _userId,
+      apiKey: _config.apiKey,
+      language: PlatformInfo.localeName,
+    );
+
+    await _sendTrackingEvent(event);
+  }
+
+  /// Tracks an error event with context and stack trace.
+  ///
+  /// [errorName] - The type of error (e.g., 'TypeError', 'NetworkError', 'CustomError')
+  /// [message] - The error message
+  /// [stackTrace] - Optional stack trace string
+  /// [fileName] - Optional file name where the error occurred
+  /// [lineNumber] - Optional line number where the error occurred
+  /// [columnNumber] - Optional column number where the error occurred
+  /// [pathname] - Optional page path where the error occurred
+  /// [pageTitle] - Optional page title where the error occurred
+  Future<void> trackError(
+    String errorName,
+    String message, {
+    String? stackTrace,
+    String? fileName,
+    int? lineNumber,
+    int? columnNumber,
+    String? pathname,
+    String? pageTitle,
+  }) async {
+    _ensureInitialized();
+
+    final screenInfo = _getScreenInfo();
+    
+    // Truncate message and stack trace as per server validation
+    final truncatedMessage = message.length > 500 ? message.substring(0, 500) : message;
+    final truncatedStack = stackTrace != null && stackTrace.length > 2000 
+        ? stackTrace.substring(0, 2000) 
+        : stackTrace;
+
+    final errorProperties = {
+      'message': truncatedMessage,
+      if (truncatedStack != null) 'stack': truncatedStack,
+      if (fileName != null) 'fileName': fileName,
+      if (lineNumber != null) 'lineNumber': lineNumber,
+      if (columnNumber != null) 'columnNumber': columnNumber,
+    };
+
+    final event = TrackEvent.error(
+      siteId: _config.siteId,
+      eventName: errorName,
+      errorProperties: errorProperties,
+      pathname: pathname,
+      hostname: _hostname,
+      pageTitle: pageTitle,
       screenWidth: screenInfo.width.round(),
       screenHeight: screenInfo.height.round(),
       userAgent: _userAgent,
@@ -309,7 +382,7 @@ class RybbitFlutter with WidgetsBindingObserver {
               url,
               headers: {
                 'Content-Type': 'application/json',
-                'User-Agent': _userAgent ?? 'RybbitFlutter/1.0.0',
+                'User-Agent': _userAgent ?? 'RybbitFlutter/0.3.0',
               },
               body: body,
             )

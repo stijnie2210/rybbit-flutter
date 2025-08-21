@@ -1,5 +1,5 @@
 # Rybbit Flutter SDK 
-<a href="https://rybbit.io"><img src="https://www.rybbit.io/rybbit-text.svg" width="100" height="50"/></a>
+<a href="https://rybbit.io"><img src="https://www.rybbit.io/rybbit-text.svg" width="100" height="40"/></a>
 
 <a href="https://pub.dev/packages/rybbit_flutter"><img src="https://img.shields.io/pub/v/rybbit_flutter.svg" alt="Pub"></a>
 
@@ -16,6 +16,7 @@ A Flutter client SDK for [Rybbit Analytics](https://rybbit.io) - a modern, open-
 - 📊 Pageview tracking with automatic screen navigation detection
 - 🎯 Custom event tracking with arbitrary properties
 - 🔗 Outbound link tracking (external URLs, deep links, app store links)
+- ❌ Error tracking with stack traces and context
 - 👤 User identification and session management
 - 📱 App lifecycle tracking (foreground/background)
 
@@ -25,7 +26,7 @@ Add `rybbit_flutter` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  rybbit_flutter: ^0.1.0
+  rybbit_flutter: ^0.3.0
 ```
 
 Run:
@@ -102,6 +103,19 @@ await RybbitFlutter.instance.trackOutboundLink(
   'https://play.google.com/store/apps/details?id=com.example.app',
   text: 'Download Our App',
 );
+
+// Track errors with context
+try {
+  await riskyOperation();
+} catch (e, stackTrace) {
+  await RybbitFlutter.instance.trackError(
+    'NetworkError',
+    'Failed to load user data: ${e.toString()}',
+    stackTrace: stackTrace.toString(),
+    fileName: 'user_service.dart',
+    lineNumber: 42,
+  );
+}
 ```
 
 ## Usage Examples
@@ -120,9 +134,21 @@ const config = RybbitConfig(
   requestTimeout: Duration(seconds: 15),
   maxRetries: 5,
   
-  // Optional: Feature flags
+  // Optional: Tracking behavior
   trackScreenViews: true,      // Auto-track route changes
   trackAppLifecycle: true,     // Track app foreground/background
+  trackQuerystring: true,      // Include query parameters in pageviews
+  trackOutbound: true,         // Track outbound link clicks
+  autoTrackPageview: true,     // Track initial pageview on init
+  
+  // Optional: Skip patterns (simple wildcards supported)
+  skipPatterns: [
+    '/debug/*',                // Skip all debug pages
+    '/admin/internal/*',       // Skip internal admin pages
+    '*/temp',                  // Skip any temp pages
+  ],
+  
+  // Optional: Debug settings
   enableLogging: false,        // Debug logging
 );
 ```
@@ -132,11 +158,12 @@ const config = RybbitConfig(
 If you prefer manual control over screen tracking:
 
 ```dart
-// Disable automatic tracking
+// Disable automatic tracking and skip certain patterns
 const config = RybbitConfig(
   apiKey: 'rb_your_key',
   siteId: 'your_site_id',
   trackScreenViews: false,
+  skipPatterns: ['/debug/*', '/internal/*'],
 );
 
 // Track screens manually
@@ -244,25 +271,57 @@ await RybbitFlutter.instance.trackEvent(
 RybbitFlutter.instance.clearUserId();
 ```
 
-### Error and Performance Tracking
+### Error Tracking
 
 ```dart
-// Track errors
+// Track errors with full context
 try {
-  await riskyOperation();
-} catch (e) {
-  await RybbitFlutter.instance.trackEvent(
-    'error_occurred',
-    properties: {
-      'error_type': e.runtimeType.toString(),
-      'error_message': e.toString(),
-      'screen': '/checkout',
-    },
+  await authenticateUser(credentials);
+} catch (e, stackTrace) {
+  await RybbitFlutter.instance.trackError(
+    'AuthenticationError',
+    'Login failed: ${e.toString()}',
+    stackTrace: stackTrace.toString(),
+    fileName: 'auth_service.dart',
+    lineNumber: 156,
+    pathname: '/login',
+    pageTitle: 'Login Screen',
   );
   rethrow;
 }
 
-// Track performance metrics
+// Track different error types
+await RybbitFlutter.instance.trackError(
+  'ValidationError',
+  'Email format is invalid',
+  fileName: 'validators.dart',
+  lineNumber: 23,
+  pathname: '/signup',
+);
+
+// Track network errors
+await RybbitFlutter.instance.trackError(
+  'NetworkError',
+  'Request timeout after 30 seconds',
+  stackTrace: stackTrace?.toString(),
+  fileName: 'api_client.dart',
+  lineNumber: 89,
+  pathname: '/dashboard',
+);
+
+// Track custom business logic errors
+await RybbitFlutter.instance.trackError(
+  'PaymentError',
+  'Insufficient funds for transaction',
+  fileName: 'payment_service.dart',
+  lineNumber: 234,
+);
+```
+
+### Performance Tracking
+
+```dart
+// Track performance metrics with custom events
 final stopwatch = Stopwatch()..start();
 await loadData();
 stopwatch.stop();
@@ -287,6 +346,7 @@ await RybbitFlutter.instance.trackEvent(
 - `trackPageView({required String pathname, String? pageTitle, String? referrer, Map<String, String>? queryParams})` - Track a page/screen view with optional query parameters
 - `trackEvent(String eventName, {Map<String, dynamic>? properties, String? pathname, String? pageTitle})` - Track a custom event
 - `trackOutboundLink(String url, {String? text, String? pathname})` - Track external link clicks
+- `trackError(String errorName, String message, {String? stackTrace, String? fileName, int? lineNumber, int? columnNumber, String? pathname, String? pageTitle})` - Track application errors with context
 - `identify(String userId)` - Associate events with a user ID
 - `clearUserId()` - Clear the current user ID
 - `dispose()` - Clean up resources (call when app is disposed)
@@ -326,6 +386,10 @@ await RybbitFlutter.instance.trackPageView(
 | `maxRetries` | int | ❌ | `3` | Max retry attempts |
 | `trackScreenViews` | bool | ❌ | `true` | Auto-track route changes |
 | `trackAppLifecycle` | bool | ❌ | `true` | Track app state changes |
+| `trackQuerystring` | bool | ❌ | `true` | Include query params in pageviews |
+| `trackOutbound` | bool | ❌ | `true` | Track outbound link clicks |
+| `autoTrackPageview` | bool | ❌ | `true` | Track initial pageview on init |
+| `skipPatterns` | List<String> | ❌ | `[]` | URL patterns to skip (supports `*` wildcards) |
 
 ## Platform Support
 

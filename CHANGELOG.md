@@ -5,6 +5,73 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2025-08-21
+
+### Added
+- **Error Tracking**: New comprehensive error tracking functionality with full context capture
+  - `trackError()` method for tracking application errors with stack traces
+  - Support for error metadata: fileName, lineNumber, columnNumber
+  - Automatic message and stack trace truncation (500/2000 chars)
+  - Error event type with proper server validation compatibility
+- **Advanced Configuration Options**: Enhanced configuration system matching web SDK capabilities
+  - `trackQuerystring`: Control whether query parameters are included in pageviews (default: true)
+  - `trackOutbound`: Enable/disable outbound link tracking (default: true)
+  - `autoTrackPageview`: Control initial pageview tracking on SDK init (default: true)
+  - `skipPatterns`: Client-side URL filtering with wildcard pattern support
+- **Pattern Matching System**: Efficient client-side filtering to reduce unnecessary requests
+  - Wildcard support: `*`, `/admin/*`, `*/debug/*`, `*temp*`
+  - Multiple pattern matching with first-match priority
+  - Graceful handling of invalid patterns
+  - Performance-optimized regex conversion
+
+### Enhanced
+- **TrackEvent Model**: Extended event model to support new tracking types
+  - New `error` event type with specialized constructor
+  - Enhanced JSON serialization for all event types
+  - Improved type safety and validation
+- **RybbitConfig**: Comprehensive configuration validation and testing
+  - All new options have sensible defaults
+  - Full `copyWith()` support for all new parameters
+  - Backwards-compatible configuration
+- **Example Application**: Updated with demonstrations of all new features
+  - Error tracking examples with real error simulation
+  - Skip patterns demonstration (debug page)
+  - Query parameter usage examples
+  - Comprehensive feature showcase across multiple screens
+
+### Technical Improvements
+- **Comprehensive Testing**: 38 tests covering all functionality
+  - Unit tests for PatternMatcher with 13 test cases
+  - Integration tests for config options
+  - Error tracking validation tests
+  - JSON serialization tests for all event types
+- **Client-Side Performance**: Reduced server load through intelligent filtering
+  - Skip patterns prevent unnecessary network requests
+  - Efficient wildcard pattern matching
+  - Configurable query parameter inclusion
+- **Server Compatibility**: Full compatibility with rybbit-src v1.6.0
+  - Matches server-side validation schemas exactly
+  - Proper error event structure
+  - Compatible with latest tracking endpoints
+
+### Developer Experience
+- **Enhanced Documentation**: Updated README with all new features and examples
+  - Configuration options table with defaults
+  - Real-world pattern matching examples
+  - Error tracking usage patterns
+  - Updated API reference
+- **Testing Infrastructure**: Robust test suite ensuring reliability
+  - Pattern matching edge cases covered
+  - Configuration validation tests
+  - Error handling and truncation tests
+  - Cross-platform compatibility verification
+
+### Migration Notes
+- All new configuration options are backwards-compatible with default values
+- Existing tracking methods continue to work unchanged
+- New error tracking is opt-in and doesn't affect existing functionality
+- Skip patterns are optional and disabled by default
+
 ## [0.2.1] - 2025-08-19
 
 ### Added
@@ -82,5 +149,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Implements singleton pattern for easy access
 - Full type safety with comprehensive null safety
 
+[0.3.0]: https://github.com/stijnie2210/rybbit-flutter/releases/tag/v0.3.0
 [0.2.1]: https://github.com/stijnie2210/rybbit-flutter/releases/tag/v0.2.1
 [0.1.0]: https://github.com/stijnie2210/rybbit-flutter/releases/tag/v0.1.0

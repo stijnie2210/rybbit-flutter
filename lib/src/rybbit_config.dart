@@ -26,6 +26,19 @@ class RybbitConfig {
   /// Whether to track app lifecycle events (foreground/background). Defaults to true.
   final bool trackAppLifecycle;
 
+  /// Whether to include query parameters in page tracking. Defaults to true.
+  final bool trackQuerystring;
+
+  /// Whether to automatically track outbound link clicks. Defaults to true.
+  final bool trackOutbound;
+
+  /// Whether to automatically track initial pageview on SDK initialization. Defaults to true.
+  final bool autoTrackPageview;
+
+  /// List of URL patterns to skip tracking (supports glob patterns like '/admin/*').
+  /// Events matching these patterns will not be sent to analytics.
+  final List<String> skipPatterns;
+
   /// Creates a new RybbitConfig instance.
   ///
   /// [apiKey] and [siteId] are required. All other parameters have sensible defaults.
@@ -38,6 +51,10 @@ class RybbitConfig {
     this.maxRetries = 3,
     this.trackScreenViews = true,
     this.trackAppLifecycle = true,
+    this.trackQuerystring = true,
+    this.trackOutbound = true,
+    this.autoTrackPageview = true,
+    this.skipPatterns = const [],
   });
 
   /// Creates a copy of this config with the specified parameters overridden.
@@ -50,6 +67,10 @@ class RybbitConfig {
     int? maxRetries,
     bool? trackScreenViews,
     bool? trackAppLifecycle,
+    bool? trackQuerystring,
+    bool? trackOutbound,
+    bool? autoTrackPageview,
+    List<String>? skipPatterns,
   }) {
     return RybbitConfig(
       apiKey: apiKey ?? this.apiKey,
@@ -60,6 +81,10 @@ class RybbitConfig {
       maxRetries: maxRetries ?? this.maxRetries,
       trackScreenViews: trackScreenViews ?? this.trackScreenViews,
       trackAppLifecycle: trackAppLifecycle ?? this.trackAppLifecycle,
+      trackQuerystring: trackQuerystring ?? this.trackQuerystring,
+      trackOutbound: trackOutbound ?? this.trackOutbound,
+      autoTrackPageview: autoTrackPageview ?? this.autoTrackPageview,
+      skipPatterns: skipPatterns ?? this.skipPatterns,
     );
   }
 

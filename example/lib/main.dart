@@ -4,7 +4,7 @@ import 'package:rybbit_flutter/rybbit_flutter.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Rybbit Analytics
+  // Initialize Rybbit Analytics with new configuration options
   await RybbitFlutter.instance.initialize(
     RybbitConfig(
       apiKey: 'your-api-key-here', // Replace with your actual API key
@@ -12,6 +12,14 @@ void main() async {
       enableLogging: true, // Enable for debugging
       trackScreenViews: true,
       trackAppLifecycle: true,
+      trackQuerystring: true, // Include query params in pageviews
+      trackOutbound: true, // Track outbound link clicks
+      autoTrackPageview: true, // Track initial pageview on init
+      skipPatterns: [
+        '/debug/*', // Skip debug pages
+        '/admin/internal/*', // Skip internal admin pages
+        '*/temp', // Skip temporary pages
+      ],
     ),
   );
 
@@ -35,6 +43,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/second': (context) => const SecondPage(),
         '/third': (context) => const ThirdPage(),
+        '/debug': (context) => const DebugPage(), // This will be skipped by analytics
       },
     );
   }
@@ -60,7 +69,14 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _trackPageView() {
-    RybbitFlutter.instance.trackPageView(pathname: '/', pageTitle: 'Home Page');
+    RybbitFlutter.instance.trackPageView(
+      pathname: '/',
+      pageTitle: 'Home Page',
+      queryParams: {
+        'source': 'manual_track',
+        'version': '1.0',
+      },
+    );
   }
 
   void _incrementCounter() {
@@ -111,6 +127,28 @@ class _MyHomePageState extends State<MyHomePage> {
     ).showSnackBar(const SnackBar(content: Text('Outbound link tracked!')));
   }
 
+  void _trackError() {
+    // Example of error tracking
+    try {
+      // Simulate an error
+      throw Exception('This is a test error for analytics');
+    } catch (e, stackTrace) {
+      RybbitFlutter.instance.trackError(
+        'TestError',
+        'Simulated error: ${e.toString()}',
+        stackTrace: stackTrace.toString(),
+        fileName: 'main.dart',
+        lineNumber: 95,
+        pathname: '/',
+        pageTitle: 'Home Page',
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error tracked to analytics!')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -150,6 +188,26 @@ class _MyHomePageState extends State<MyHomePage> {
                 Navigator.pushNamed(context, '/third');
               },
               child: const Text('Go to Third Page'),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/debug');
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Go to Debug Page (Skipped)'),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _trackError,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Track Error'),
             ),
           ],
         ),
@@ -206,6 +264,49 @@ class SecondPage extends StatelessWidget {
                 Navigator.pop(context);
               },
               child: const Text('Go Back'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class DebugPage extends StatelessWidget {
+  const DebugPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Debug Page (Analytics Skipped)'),
+        backgroundColor: Colors.red,
+      ),
+      body: const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.bug_report,
+              size: 80,
+              color: Colors.red,
+            ),
+            SizedBox(height: 16),
+            Text(
+              'This is a debug page!',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 16),
+            Text(
+              'This page matches the skip pattern "/debug/*"',
+              style: TextStyle(fontSize: 16),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 8),
+            Text(
+              'So it won\'t be tracked in analytics.',
+              style: TextStyle(fontSize: 16, color: Colors.grey),
+              textAlign: TextAlign.center,
             ),
           ],
         ),
