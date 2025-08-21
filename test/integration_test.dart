@@ -6,19 +6,21 @@ import 'package:rybbit_flutter/src/pattern_matcher.dart';
 
 void main() {
   group('Config and Pattern Integration Tests', () {
-
     group('TrackEvent JSON generation', () {
-      test('includes query params when trackQuerystring config would be true', () {
-        // Test the TrackEvent model directly
-        final event = TrackEvent.pageview(
-          siteId: '123',
-          pathname: '/test',
-          queryParams: {'utm_source': 'google', 'utm_medium': 'cpc'},
-        );
+      test(
+        'includes query params when trackQuerystring config would be true',
+        () {
+          // Test the TrackEvent model directly
+          final event = TrackEvent.pageview(
+            siteId: '123',
+            pathname: '/test',
+            queryParams: {'utm_source': 'google', 'utm_medium': 'cpc'},
+          );
 
-        final json = event.toJson();
-        expect(json['querystring'], '?utm_source=google&utm_medium=cpc');
-      });
+          final json = event.toJson();
+          expect(json['querystring'], '?utm_source=google&utm_medium=cpc');
+        },
+      );
 
       test('handles empty query params', () {
         final event = TrackEvent.pageview(
@@ -57,7 +59,10 @@ void main() {
           true,
         );
         expect(
-          PatternMatcher.shouldSkipPath('/admin/internal/stats', config.skipPatterns),
+          PatternMatcher.shouldSkipPath(
+            '/admin/internal/stats',
+            config.skipPatterns,
+          ),
           true,
         );
         expect(
@@ -78,7 +83,10 @@ void main() {
           false,
         );
         expect(
-          PatternMatcher.shouldSkipPath('/admin/internal/stats', config.skipPatterns),
+          PatternMatcher.shouldSkipPath(
+            '/admin/internal/stats',
+            config.skipPatterns,
+          ),
           false,
         );
       });
@@ -91,7 +99,8 @@ void main() {
           eventName: 'NetworkError',
           errorProperties: {
             'message': 'Connection failed: timeout after 30s',
-            'stack': 'at ApiService.getData (api_service.dart:42)\nat main (main.dart:10)',
+            'stack':
+                'at ApiService.getData (api_service.dart:42)\nat main (main.dart:10)',
             'fileName': 'api_service.dart',
             'lineNumber': 42,
             'columnNumber': 15,
@@ -101,12 +110,12 @@ void main() {
         );
 
         final json = event.toJson();
-        
+
         expect(json['type'], 'error');
         expect(json['event_name'], 'NetworkError');
         expect(json['pathname'], '/dashboard');
         expect(json['page_title'], 'Dashboard');
-        
+
         final properties = jsonDecode(json['properties']);
         expect(properties['message'], 'Connection failed: timeout after 30s');
         expect(properties['stack'], contains('api_service.dart:42'));
@@ -119,15 +128,13 @@ void main() {
         final event = TrackEvent.error(
           siteId: '123',
           eventName: 'SimpleError',
-          errorProperties: {
-            'message': 'Something went wrong',
-          },
+          errorProperties: {'message': 'Something went wrong'},
         );
 
         final json = event.toJson();
         expect(json['type'], 'error');
         expect(json['event_name'], 'SimpleError');
-        
+
         final properties = jsonDecode(json['properties']);
         expect(properties['message'], 'Something went wrong');
         expect(properties.containsKey('stack'), false);
@@ -136,10 +143,7 @@ void main() {
 
     group('Config validation', () {
       test('all new config options have correct defaults', () {
-        const config = RybbitConfig(
-          apiKey: 'rb_test',
-          siteId: '123',
-        );
+        const config = RybbitConfig(apiKey: 'rb_test', siteId: '123');
 
         expect(config.trackQuerystring, true);
         expect(config.trackOutbound, true);
@@ -164,10 +168,7 @@ void main() {
       });
 
       test('copyWith works with new config options', () {
-        const original = RybbitConfig(
-          apiKey: 'rb_test',
-          siteId: '123',
-        );
+        const original = RybbitConfig(apiKey: 'rb_test', siteId: '123');
 
         final updated = original.copyWith(
           trackQuerystring: false,

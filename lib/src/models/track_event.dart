@@ -210,7 +210,9 @@ class TrackEvent {
     if (ipAddress != null) json['ip_address'] = ipAddress;
     if (apiKey != null) json['api_key'] = apiKey;
 
-    if (type == EventType.customEvent || type == EventType.outbound || type == EventType.error) {
+    if (type == EventType.customEvent ||
+        type == EventType.outbound ||
+        type == EventType.error) {
       if (eventName != null) json['event_name'] = eventName;
       if (properties != null) {
         json['properties'] = jsonEncode(properties);

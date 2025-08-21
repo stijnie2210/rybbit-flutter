@@ -43,7 +43,8 @@ class MyApp extends StatelessWidget {
       routes: {
         '/second': (context) => const SecondPage(),
         '/third': (context) => const ThirdPage(),
-        '/debug': (context) => const DebugPage(), // This will be skipped by analytics
+        '/debug':
+            (context) => const DebugPage(), // This will be skipped by analytics
       },
     );
   }
@@ -72,10 +73,7 @@ class _MyHomePageState extends State<MyHomePage> {
     RybbitFlutter.instance.trackPageView(
       pathname: '/',
       pageTitle: 'Home Page',
-      queryParams: {
-        'source': 'manual_track',
-        'version': '1.0',
-      },
+      queryParams: {'source': 'manual_track', 'version': '1.0'},
     );
   }
 
@@ -286,11 +284,7 @@ class DebugPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.bug_report,
-              size: 80,
-              color: Colors.red,
-            ),
+            Icon(Icons.bug_report, size: 80, color: Colors.red),
             SizedBox(height: 16),
             Text(
               'This is a debug page!',

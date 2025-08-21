@@ -219,7 +219,8 @@ class RybbitFlutter with WidgetsBindingObserver {
     _ensureInitialized();
 
     // Check if this path should be skipped (if pathname is provided)
-    if (pathname != null && PatternMatcher.shouldSkipPath(pathname, _config.skipPatterns)) {
+    if (pathname != null &&
+        PatternMatcher.shouldSkipPath(pathname, _config.skipPatterns)) {
       _log('Skipping custom event for path: $pathname (matches skip pattern)');
       return;
     }
@@ -302,12 +303,14 @@ class RybbitFlutter with WidgetsBindingObserver {
     _ensureInitialized();
 
     final screenInfo = _getScreenInfo();
-    
+
     // Truncate message and stack trace as per server validation
-    final truncatedMessage = message.length > 500 ? message.substring(0, 500) : message;
-    final truncatedStack = stackTrace != null && stackTrace.length > 2000 
-        ? stackTrace.substring(0, 2000) 
-        : stackTrace;
+    final truncatedMessage =
+        message.length > 500 ? message.substring(0, 500) : message;
+    final truncatedStack =
+        stackTrace != null && stackTrace.length > 2000
+            ? stackTrace.substring(0, 2000)
+            : stackTrace;
 
     final errorProperties = {
       'message': truncatedMessage,
