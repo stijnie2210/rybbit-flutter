@@ -17,7 +17,7 @@ class DeviceInfoPlugin {
 
 class WebBrowserInfo {
   String browserName() => 'Unknown';
-  String appVersion() => '0.3.1';
+  String appVersion() => '0.3.2';
   String platform() => 'Web';
 
   @override
