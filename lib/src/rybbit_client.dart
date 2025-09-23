@@ -305,12 +305,12 @@ class RybbitFlutter with WidgetsBindingObserver {
     final screenInfo = _getScreenInfo();
 
     // Truncate message and stack trace as per server validation
-    final truncatedMessage =
-        message.length > 500 ? message.substring(0, 500) : message;
-    final truncatedStack =
-        stackTrace != null && stackTrace.length > 2000
-            ? stackTrace.substring(0, 2000)
-            : stackTrace;
+    final truncatedMessage = message.length > 500
+        ? message.substring(0, 500)
+        : message;
+    final truncatedStack = stackTrace != null && stackTrace.length > 2000
+        ? stackTrace.substring(0, 2000)
+        : stackTrace;
 
     final errorProperties = {
       'message': truncatedMessage,

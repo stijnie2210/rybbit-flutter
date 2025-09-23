@@ -43,8 +43,8 @@ class MyApp extends StatelessWidget {
       routes: {
         '/second': (context) => const SecondPage(),
         '/third': (context) => const ThirdPage(),
-        '/debug':
-            (context) => const DebugPage(), // This will be skipped by analytics
+        '/debug': (context) =>
+            const DebugPage(), // This will be skipped by analytics
       },
     );
   }
