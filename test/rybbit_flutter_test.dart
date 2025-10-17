@@ -19,7 +19,6 @@ void main() {
       expect(config.trackScreenViews, true);
       expect(config.trackAppLifecycle, true);
       expect(config.trackQuerystring, true);
-      expect(config.trackOutbound, true);
       expect(config.autoTrackPageview, true);
       expect(config.skipPatterns, isEmpty);
     });
@@ -33,7 +32,6 @@ void main() {
         trackScreenViews: false,
         trackAppLifecycle: false,
         trackQuerystring: false,
-        trackOutbound: false,
         autoTrackPageview: false,
         skipPatterns: ['/debug/*', '/admin/*'],
       );
@@ -45,7 +43,6 @@ void main() {
       expect(config.trackScreenViews, false);
       expect(config.trackAppLifecycle, false);
       expect(config.trackQuerystring, false);
-      expect(config.trackOutbound, false);
       expect(config.autoTrackPageview, false);
       expect(config.skipPatterns, ['/debug/*', '/admin/*']);
     });
@@ -66,7 +63,6 @@ void main() {
       expect(updated.trackScreenViews, false);
       expect(updated.trackAppLifecycle, true); // unchanged
       expect(updated.trackQuerystring, false);
-      expect(updated.trackOutbound, true); // unchanged
       expect(updated.autoTrackPageview, true); // unchanged
       expect(updated.skipPatterns, ['/skip/*']);
     });

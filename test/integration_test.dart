@@ -142,32 +142,29 @@ void main() {
     });
 
     group('Config validation', () {
-      test('all new config options have correct defaults', () {
+      test('all config options have correct defaults', () {
         const config = RybbitConfig(apiKey: 'rb_test', siteId: '123');
 
         expect(config.trackQuerystring, true);
-        expect(config.trackOutbound, true);
         expect(config.autoTrackPageview, true);
         expect(config.skipPatterns, isEmpty);
       });
 
-      test('all new config options can be overridden', () {
+      test('all config options can be overridden', () {
         const config = RybbitConfig(
           apiKey: 'rb_test',
           siteId: '123',
           trackQuerystring: false,
-          trackOutbound: false,
           autoTrackPageview: false,
           skipPatterns: ['/test/*'],
         );
 
         expect(config.trackQuerystring, false);
-        expect(config.trackOutbound, false);
         expect(config.autoTrackPageview, false);
         expect(config.skipPatterns, ['/test/*']);
       });
 
-      test('copyWith works with new config options', () {
+      test('copyWith works with config options', () {
         const original = RybbitConfig(apiKey: 'rb_test', siteId: '123');
 
         final updated = original.copyWith(
@@ -176,7 +173,6 @@ void main() {
         );
 
         expect(updated.trackQuerystring, false);
-        expect(updated.trackOutbound, true); // unchanged
         expect(updated.skipPatterns, ['/skip/*']);
       });
     });
