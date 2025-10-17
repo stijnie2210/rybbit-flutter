@@ -26,7 +26,7 @@ Add `rybbit_flutter` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  rybbit_flutter: ^0.3.2
+  rybbit_flutter: ^0.4.0
 ```
 
 Run:
@@ -138,7 +138,6 @@ const config = RybbitConfig(
   trackScreenViews: true,      // Auto-track route changes
   trackAppLifecycle: true,     // Track app foreground/background
   trackQuerystring: true,      // Include query parameters in pageviews
-  trackOutbound: true,         // Track outbound link clicks
   autoTrackPageview: true,     // Track initial pageview on init
   
   // Optional: Skip patterns (simple wildcards supported)
@@ -218,6 +217,8 @@ await RybbitFlutter.instance.trackEvent(
 ```
 
 ### Outbound Link Tracking
+
+**Note**: Unlike the web SDK, outbound link tracking in Flutter requires explicit manual calls. This is because Flutter apps launch URLs programmatically (via `url_launcher`) rather than through DOM click events. Call `trackOutboundLink()` before launching URLs with `launchUrl()`.
 
 ```dart
 // Track external website visits
@@ -387,7 +388,6 @@ await RybbitFlutter.instance.trackPageView(
 | `trackScreenViews` | bool | ❌ | `true` | Auto-track route changes |
 | `trackAppLifecycle` | bool | ❌ | `true` | Track app state changes |
 | `trackQuerystring` | bool | ❌ | `true` | Include query params in pageviews |
-| `trackOutbound` | bool | ❌ | `true` | Track outbound link clicks |
 | `autoTrackPageview` | bool | ❌ | `true` | Track initial pageview on init |
 | `skipPatterns` | List<String> | ❌ | `[]` | URL patterns to skip (supports `*` wildcards) |
 

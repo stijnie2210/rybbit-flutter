@@ -4,7 +4,7 @@ import 'package:rybbit_flutter/rybbit_flutter.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Rybbit Analytics with new configuration options
+  // Initialize Rybbit Analytics with configuration options
   await RybbitFlutter.instance.initialize(
     RybbitConfig(
       apiKey: 'your-api-key-here', // Replace with your actual API key
@@ -13,7 +13,6 @@ void main() async {
       trackScreenViews: true,
       trackAppLifecycle: true,
       trackQuerystring: true, // Include query params in pageviews
-      trackOutbound: true, // Track outbound link clicks
       autoTrackPageview: true, // Track initial pageview on init
       skipPatterns: [
         '/debug/*', // Skip debug pages

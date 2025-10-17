@@ -29,9 +29,6 @@ class RybbitConfig {
   /// Whether to include query parameters in page tracking. Defaults to true.
   final bool trackQuerystring;
 
-  /// Whether to automatically track outbound link clicks. Defaults to true.
-  final bool trackOutbound;
-
   /// Whether to automatically track initial pageview on SDK initialization. Defaults to true.
   final bool autoTrackPageview;
 
@@ -52,7 +49,6 @@ class RybbitConfig {
     this.trackScreenViews = true,
     this.trackAppLifecycle = true,
     this.trackQuerystring = true,
-    this.trackOutbound = true,
     this.autoTrackPageview = true,
     this.skipPatterns = const [],
   });
@@ -68,7 +64,6 @@ class RybbitConfig {
     bool? trackScreenViews,
     bool? trackAppLifecycle,
     bool? trackQuerystring,
-    bool? trackOutbound,
     bool? autoTrackPageview,
     List<String>? skipPatterns,
   }) {
@@ -82,7 +77,6 @@ class RybbitConfig {
       trackScreenViews: trackScreenViews ?? this.trackScreenViews,
       trackAppLifecycle: trackAppLifecycle ?? this.trackAppLifecycle,
       trackQuerystring: trackQuerystring ?? this.trackQuerystring,
-      trackOutbound: trackOutbound ?? this.trackOutbound,
       autoTrackPageview: autoTrackPageview ?? this.autoTrackPageview,
       skipPatterns: skipPatterns ?? this.skipPatterns,
     );
