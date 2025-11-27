@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.2] - 2025-11-27
+
+## Changed
+- Forgot to change useragent and example versions
+- Fixed broken release links in CHANGELOG
+
 ## [0.4.1] - 2025-11-27
 
 ## Changed
@@ -178,6 +184,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Implements singleton pattern for easy access
 - Full type safety with comprehensive null safety
 
+[0.4.2]: https://github.com/stijnie2210/rybbit-flutter/releases/tag/v0.4.2
 [0.4.1]: https://github.com/stijnie2210/rybbit-flutter/releases/tag/v0.4.1
 [0.4.0]: https://github.com/stijnie2210/rybbit-flutter/releases/tag/v0.4.0
 [0.3.2]: https://github.com/stijnie2210/rybbit-flutter/releases/tag/v0.3.2

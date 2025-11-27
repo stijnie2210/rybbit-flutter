@@ -26,7 +26,7 @@ Add `rybbit_flutter` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  rybbit_flutter: ^0.4.0
+  rybbit_flutter: ^0.4.2
 ```
 
 Run:

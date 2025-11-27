@@ -141,7 +141,7 @@ class RybbitFlutter with WidgetsBindingObserver {
       }
     } catch (e) {
       _log('Failed to setup user agent: $e');
-      _userAgent = 'RybbitFlutter/0.4.0';
+      _userAgent = 'RybbitFlutter/0.4.2';
     }
   }
 
@@ -385,7 +385,7 @@ class RybbitFlutter with WidgetsBindingObserver {
               url,
               headers: {
                 'Content-Type': 'application/json',
-                'User-Agent': _userAgent ?? 'RybbitFlutter/0.4.0',
+                'User-Agent': _userAgent ?? 'RybbitFlutter/0.4.2',
               },
               body: body,
             )
