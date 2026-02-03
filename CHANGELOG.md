@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.1] - 2026-02-03
+
+### Fixed
+- Updated README with correct API signatures for `identify()` (now async with traits)
+- Added `setTraits()` documentation and examples to README
+- Fixed Flutter version requirement in README (3.32.0, not 3.22.0)
+- Fixed code example with `initState` on wrong class type
+
 ## [0.5.0] - 2026-02-03
 
 ### Changed
@@ -212,6 +220,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Implements singleton pattern for easy access
 - Full type safety with comprehensive null safety
 
+[0.5.1]: https://github.com/stijnie2210/rybbit-flutter/releases/tag/v0.5.1
 [0.5.0]: https://github.com/stijnie2210/rybbit-flutter/releases/tag/v0.5.0
 [0.4.2]: https://github.com/stijnie2210/rybbit-flutter/releases/tag/v0.4.2
 [0.4.1]: https://github.com/stijnie2210/rybbit-flutter/releases/tag/v0.4.1

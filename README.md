@@ -17,7 +17,7 @@ A Flutter client SDK for [Rybbit Analytics](https://rybbit.io) - a modern, open-
 - 🎯 Custom event tracking with arbitrary properties
 - 🔗 Outbound link tracking (external URLs, deep links, app store links)
 - ❌ Error tracking with stack traces and context
-- 👤 User identification and session management
+- 👤 User identification with traits (custom user properties)
 - 📱 App lifecycle tracking (foreground/background)
 
 ## Installation
@@ -26,7 +26,7 @@ Add `rybbit_flutter` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  rybbit_flutter: ^0.4.2
+  rybbit_flutter: ^0.5.1
 ```
 
 Run:
@@ -95,8 +95,11 @@ await RybbitFlutter.instance.trackEvent(
   },
 );
 
-// Identify users
-RybbitFlutter.instance.identify('user123');
+// Identify users (with optional traits)
+await RybbitFlutter.instance.identify('user123', traits: {
+  'name': 'John Doe',
+  'plan': 'premium',
+});
 
 // Track outbound links (web URLs, deep links, app store links)
 await RybbitFlutter.instance.trackOutboundLink(
@@ -165,8 +168,8 @@ const config = RybbitConfig(
   skipPatterns: ['/debug/*', '/internal/*'],
 );
 
-// Track screens manually
-class HomeScreen extends StatefulWidget {
+// Track screens manually in your State class
+class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
@@ -255,8 +258,19 @@ await RybbitFlutter.instance.trackOutboundLink(
 ### User Management
 
 ```dart
-// Identify logged-in users
-RybbitFlutter.instance.identify('user_12345');
+// Identify logged-in users with traits
+await RybbitFlutter.instance.identify('user_12345', traits: {
+  'name': 'Jane Smith',
+  'email': 'jane@example.com',
+  'plan': 'premium',
+});
+
+// Update traits later without creating a new alias
+await RybbitFlutter.instance.setTraits({
+  'plan': 'enterprise',        // Update existing trait
+  'company': 'Acme Corp',      // Add new trait
+  'old_field': null,            // Remove a trait by setting to null
+});
 
 // Track user properties with events
 await RybbitFlutter.instance.trackEvent(
@@ -348,7 +362,8 @@ await RybbitFlutter.instance.trackEvent(
 - `trackEvent(String eventName, {Map<String, dynamic>? properties, String? pathname, String? pageTitle})` - Track a custom event
 - `trackOutboundLink(String url, {String? text, String? pathname})` - Track external link clicks
 - `trackError(String errorName, String message, {String? stackTrace, String? fileName, int? lineNumber, int? columnNumber, String? pathname, String? pageTitle})` - Track application errors with context
-- `identify(String userId)` - Associate events with a user ID
+- `identify(String userId, {Map<String, dynamic>? traits})` - Associate events with a user ID and optionally store custom traits on the server
+- `setTraits(Map<String, dynamic> traits)` - Update traits for the current identified user without creating a new alias
 - `clearUserId()` - Clear the current user ID
 - `dispose()` - Clean up resources (call when app is disposed)
 
@@ -403,7 +418,7 @@ await RybbitFlutter.instance.trackPageView(
 | ✅ Linux | Full | Desktop support |
 
 **Requirements:**
-- Flutter 3.22.0 or higher
+- Flutter 3.32.0 or higher
 
 ## Troubleshooting
 
@@ -422,7 +437,7 @@ await RybbitFlutter.instance.trackPageView(
 
 **Build errors:**
 1. Run `flutter pub get` after adding the dependency
-2. Check that your Flutter SDK version meets requirements (≥3.7.2)
+2. Check that your Flutter SDK version meets requirements (≥3.32.0)
 3. For web builds, ensure CORS is properly configured on your analytics server
 
 ### Debug Mode
