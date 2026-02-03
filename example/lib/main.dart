@@ -1,14 +1,28 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:rybbit_flutter/rybbit_flutter.dart';
 
+/// Temporarily bypass invalid SSL certificates for local development.
+class DevHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback = (cert, host, port) => true;
+  }
+}
+
 void main() async {
+  HttpOverrides.global = DevHttpOverrides();
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize Rybbit Analytics with configuration options
   await RybbitFlutter.instance.initialize(
     RybbitConfig(
-      apiKey: 'your-api-key-here', // Replace with your actual API key
-      siteId: 'your-site-id-here', // Replace with your actual site ID
+      analyticsHost: 'https://caddy.rybbit-src.orb.local',
+      apiKey:
+          'rb_vvDwYbLwpEMbUAufNwfUbNuTbUffPtPkWOIEtPmFLLwpFiRhDahkdcXDcPJFXYCT', // Replace with your actual API key
+      siteId: '4', // Replace with your actual site ID
       enableLogging: true, // Enable for debugging
       trackScreenViews: true,
       trackAppLifecycle: true,

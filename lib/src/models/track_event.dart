@@ -74,9 +74,6 @@ class TrackEvent {
   /// source IP for geolocation enrichment (country, region, city, coordinates).
   final String? ipAddress;
 
-  /// Your Rybbit API key for authentication (automatically included)
-  final String? apiKey;
-
   const TrackEvent({
     required this.type,
     required this.siteId,
@@ -93,7 +90,6 @@ class TrackEvent {
     this.screenHeight,
     this.userAgent,
     this.ipAddress,
-    this.apiKey,
   });
 
   /// Creates a pageview tracking event.
@@ -112,7 +108,6 @@ class TrackEvent {
     this.screenHeight,
     this.userAgent,
     this.ipAddress,
-    this.apiKey,
   }) : type = EventType.pageview,
        eventName = null,
        properties = null;
@@ -135,7 +130,6 @@ class TrackEvent {
     this.screenHeight,
     this.userAgent,
     this.ipAddress,
-    this.apiKey,
   }) : type = EventType.customEvent;
 
   /// Creates an outbound link tracking event.
@@ -155,9 +149,8 @@ class TrackEvent {
     this.screenHeight,
     this.userAgent,
     this.ipAddress,
-    this.apiKey,
   }) : type = EventType.outbound,
-       eventName = 'outbound_link',
+       eventName = null,
        properties = outboundProperties;
 
   /// Creates an error tracking event.
@@ -178,7 +171,6 @@ class TrackEvent {
     this.screenHeight,
     this.userAgent,
     this.ipAddress,
-    this.apiKey,
   }) : type = EventType.error,
        properties = errorProperties;
 
@@ -208,7 +200,6 @@ class TrackEvent {
     if (screenHeight != null) json['screenHeight'] = screenHeight;
     if (userAgent != null) json['user_agent'] = userAgent;
     if (ipAddress != null) json['ip_address'] = ipAddress;
-    if (apiKey != null) json['api_key'] = apiKey;
 
     if (type == EventType.customEvent ||
         type == EventType.outbound ||
@@ -252,7 +243,6 @@ class TrackEvent {
     int? screenHeight,
     String? userAgent,
     String? ipAddress,
-    String? apiKey,
   }) {
     return TrackEvent(
       type: type ?? this.type,
@@ -270,7 +260,6 @@ class TrackEvent {
       screenHeight: screenHeight ?? this.screenHeight,
       userAgent: userAgent ?? this.userAgent,
       ipAddress: ipAddress ?? this.ipAddress,
-      apiKey: apiKey ?? this.apiKey,
     );
   }
 

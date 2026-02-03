@@ -42,6 +42,10 @@ import 'rybbit_config.dart';
 /// // Track an error
 /// await RybbitFlutter.instance.trackError('NetworkError', 'Failed to load data',
 ///   stackTrace: stackTrace.toString(), fileName: 'api_service.dart');
+///
+/// // Identify a user with traits
+/// await RybbitFlutter.instance.identify('user-123',
+///   traits: {'name': 'John', 'plan': 'pro'});
 /// ```
 class RybbitFlutter with WidgetsBindingObserver {
   static RybbitFlutter? _instance;
@@ -141,7 +145,7 @@ class RybbitFlutter with WidgetsBindingObserver {
       }
     } catch (e) {
       _log('Failed to setup user agent: $e');
-      _userAgent = 'RybbitFlutter/0.4.2';
+      _userAgent = 'RybbitFlutter';
     }
   }
 
@@ -197,7 +201,6 @@ class RybbitFlutter with WidgetsBindingObserver {
       screenHeight: screenInfo.height.round(),
       userAgent: _userAgent,
       userId: _userId,
-      apiKey: _config.apiKey,
       language: PlatformInfo.localeName,
     );
 
@@ -238,7 +241,6 @@ class RybbitFlutter with WidgetsBindingObserver {
       screenHeight: screenInfo.height.round(),
       userAgent: _userAgent,
       userId: _userId,
-      apiKey: _config.apiKey,
       language: PlatformInfo.localeName,
     );
 
@@ -273,7 +275,6 @@ class RybbitFlutter with WidgetsBindingObserver {
       screenHeight: screenInfo.height.round(),
       userAgent: _userAgent,
       userId: _userId,
-      apiKey: _config.apiKey,
       language: PlatformInfo.localeName,
     );
 
@@ -331,21 +332,46 @@ class RybbitFlutter with WidgetsBindingObserver {
       screenHeight: screenInfo.height.round(),
       userAgent: _userAgent,
       userId: _userId,
-      apiKey: _config.apiKey,
       language: PlatformInfo.localeName,
     );
 
     await _sendTrackingEvent(event);
   }
 
-  /// Associates a user ID with future tracking events.
+  /// Associates a user ID with future tracking events and sends an identify
+  /// call to the Rybbit server.
+  ///
+  /// This creates an alias linking the anonymous device fingerprint to the
+  /// provided [userId], and optionally stores user [traits] (custom properties)
+  /// on the server.
   ///
   /// [userId] - A unique identifier for the user
-  void identify(String userId) {
+  /// [traits] - Optional custom properties for the user (e.g., name, email, plan)
+  Future<void> identify(String userId, {Map<String, dynamic>? traits}) async {
+    _ensureInitialized();
+
     _userId = userId;
-    if (_initialized) {
-      _log('User identified: $userId');
+    _log('User identified: $userId');
+
+    await _sendIdentify(userId, traits: traits, isNewIdentify: true);
+  }
+
+  /// Updates the traits (custom properties) for the current identified user
+  /// without creating a new alias.
+  ///
+  /// The user must be identified first via [identify].
+  ///
+  /// [traits] - Custom properties to set/update for the user. Setting a value
+  /// to null will remove that trait on the server.
+  Future<void> setTraits(Map<String, dynamic> traits) async {
+    _ensureInitialized();
+
+    if (_userId == null) {
+      _log('Cannot set traits: no user identified. Call identify() first.');
+      return;
     }
+
+    await _sendIdentify(_userId!, traits: traits, isNewIdentify: false);
   }
 
   /// Clears the current user ID association.
@@ -368,6 +394,14 @@ class RybbitFlutter with WidgetsBindingObserver {
     return _routeObserver!;
   }
 
+  Map<String, String> _buildHeaders() {
+    return {
+      'Content-Type': 'application/json',
+      'User-Agent': _userAgent ?? 'RybbitFlutter',
+      'Authorization': 'Bearer ${_config.apiKey}',
+    };
+  }
+
   Future<void> _sendTrackingEvent(TrackEvent event) async {
     if (!_initialized) {
       _log('RybbitFlutter not initialized, skipping event');
@@ -381,14 +415,7 @@ class RybbitFlutter with WidgetsBindingObserver {
     while (attempts < _config.maxRetries) {
       try {
         final response = await _httpClient
-            .post(
-              url,
-              headers: {
-                'Content-Type': 'application/json',
-                'User-Agent': _userAgent ?? 'RybbitFlutter/0.4.2',
-              },
-              body: body,
-            )
+            .post(url, headers: _buildHeaders(), body: body)
             .timeout(_config.requestTimeout);
 
         if (response.statusCode >= 200 && response.statusCode < 300) {
@@ -409,6 +436,48 @@ class RybbitFlutter with WidgetsBindingObserver {
           _log(
             'Max retries reached for event: ${event.eventName ?? event.type.toString()}',
           );
+          break;
+        }
+
+        await Future.delayed(Duration(milliseconds: 1000 * attempts));
+      }
+    }
+  }
+
+  Future<void> _sendIdentify(
+    String userId, {
+    Map<String, dynamic>? traits,
+    bool isNewIdentify = true,
+  }) async {
+    final url = Uri.parse('${_config.analyticsHost}/api/identify');
+    final body = jsonEncode({
+      'site_id': _config.siteId,
+      'user_id': userId,
+      if (traits != null) 'traits': traits,
+      'is_new_identify': isNewIdentify,
+    });
+
+    int attempts = 0;
+    while (attempts < _config.maxRetries) {
+      try {
+        final response = await _httpClient
+            .post(url, headers: _buildHeaders(), body: body)
+            .timeout(_config.requestTimeout);
+
+        if (response.statusCode >= 200 && response.statusCode < 300) {
+          _log('Identify sent successfully for user: $userId');
+          return;
+        } else {
+          throw HttpException('HTTP ${response.statusCode}: ${response.body}');
+        }
+      } catch (e) {
+        attempts++;
+        _log(
+          'Failed to send identify (attempt $attempts/${_config.maxRetries}): $e',
+        );
+
+        if (attempts >= _config.maxRetries) {
+          _log('Max retries reached for identify: $userId');
           break;
         }
 

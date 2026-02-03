@@ -124,7 +124,7 @@ void main() {
 
       expect(event.type, EventType.outbound);
       expect(event.siteId, '123');
-      expect(event.eventName, 'outbound_link');
+      expect(event.eventName, isNull);
       expect(event.properties, {
         'url': 'https://example.com',
         'text': 'Visit Example',
@@ -173,6 +173,28 @@ void main() {
       expect(json['pathname'], '/test');
       expect(json['hostname'], 'example.com');
       expect(json['querystring'], '?utm_source=google&utm_medium=cpc');
+    });
+
+    test('outbound event JSON does not include event_name', () {
+      final event = TrackEvent.outbound(
+        siteId: '123',
+        outboundProperties: {
+          'url': 'https://example.com',
+          'text': 'Click here',
+        },
+      );
+
+      final json = event.toJson();
+      expect(json['type'], 'outbound');
+      expect(json.containsKey('event_name'), false);
+      expect(json['properties'], contains('example.com'));
+    });
+
+    test('does not include api_key in JSON output', () {
+      final event = TrackEvent.pageview(siteId: '123', pathname: '/test');
+
+      final json = event.toJson();
+      expect(json.containsKey('api_key'), false);
     });
 
     test('converts queryParams to querystring correctly', () {
@@ -232,14 +254,22 @@ void main() {
       expect(() => rybbit.trackEvent('test'), throwsA(isA<StateError>()));
     });
 
-    testWidgets('user identification', (tester) async {
+    testWidgets('user ID cleared', (tester) async {
       expect(rybbit.userId, isNull);
-
-      rybbit.identify('user123');
-      expect(rybbit.userId, 'user123');
 
       rybbit.clearUserId();
       expect(rybbit.userId, isNull);
+    });
+
+    testWidgets('identify throws when not initialized', (tester) async {
+      expect(() => rybbit.identify('user123'), throwsA(isA<StateError>()));
+    });
+
+    testWidgets('setTraits throws when not initialized', (tester) async {
+      expect(
+        () => rybbit.setTraits({'plan': 'pro'}),
+        throwsA(isA<StateError>()),
+      );
     });
   });
 }

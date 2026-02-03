@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-02-03
+
+### Changed
+- **BREAKING**: Authentication now uses Bearer token in Authorization header instead of `api_key` in request body
+  - The `apiKey` config parameter is still required but is now sent as a Bearer token header
+  - This matches the current Rybbit server's strict payload validation which rejects unknown fields
+- **BREAKING**: `identify()` is now async and requires SDK initialization
+  - Now calls the server's `/api/identify` endpoint to create user aliases and store traits
+  - Previously only set the user ID locally
+- **BREAKING**: Outbound events no longer set `event_name` to `'outbound_link'`
+  - Server schema makes `event_name` optional for outbound events
+
+### Added
+- **User Traits**: `identify()` now accepts an optional `traits` parameter for storing custom user properties
+- **`setTraits()` method**: Update user traits without creating a new alias
+- Server-side user identification via `/api/identify` endpoint
+
+### Updated
+- `device_info_plus` dependency from ^12.2.0 to ^12.3.0
+
+### Notes
+- Verified compatibility with latest Rybbit server (2.3.1 at this time) (strict Zod validation, Bearer token auth)
+
+### Migration Notes
+- `identify('userId')` → `await identify('userId')` (now async, add `await`)
+- If you were checking `event.eventName` for outbound events being `'outbound_link'`, update your code
+- No changes needed for `apiKey` in `RybbitConfig` - it's still passed the same way in config
+
 ## [0.4.2] - 2025-11-27
 
 ## Changed
@@ -184,6 +212,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Implements singleton pattern for easy access
 - Full type safety with comprehensive null safety
 
+[0.5.0]: https://github.com/stijnie2210/rybbit-flutter/releases/tag/v0.5.0
 [0.4.2]: https://github.com/stijnie2210/rybbit-flutter/releases/tag/v0.4.2
 [0.4.1]: https://github.com/stijnie2210/rybbit-flutter/releases/tag/v0.4.1
 [0.4.0]: https://github.com/stijnie2210/rybbit-flutter/releases/tag/v0.4.0
