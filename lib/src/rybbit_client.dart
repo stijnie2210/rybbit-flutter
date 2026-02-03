@@ -260,11 +260,7 @@ class RybbitFlutter with WidgetsBindingObserver {
     _ensureInitialized();
 
     final screenInfo = _getScreenInfo();
-    final properties = {
-      'url': url,
-      if (text != null) 'text': text,
-      'target': '_blank',
-    };
+    final properties = {'url': url, 'text': ?text, 'target': '_blank'};
 
     final event = TrackEvent.outbound(
       siteId: _config.siteId,
@@ -315,10 +311,10 @@ class RybbitFlutter with WidgetsBindingObserver {
 
     final errorProperties = {
       'message': truncatedMessage,
-      if (truncatedStack != null) 'stack': truncatedStack,
-      if (fileName != null) 'fileName': fileName,
-      if (lineNumber != null) 'lineNumber': lineNumber,
-      if (columnNumber != null) 'columnNumber': columnNumber,
+      'stack': ?truncatedStack,
+      'fileName': ?fileName,
+      'lineNumber': ?lineNumber,
+      'columnNumber': ?columnNumber,
     };
 
     final event = TrackEvent.error(
@@ -453,7 +449,7 @@ class RybbitFlutter with WidgetsBindingObserver {
     final body = jsonEncode({
       'site_id': _config.siteId,
       'user_id': userId,
-      if (traits != null) 'traits': traits,
+      'traits': ?traits,
       'is_new_identify': isNewIdentify,
     });
 
