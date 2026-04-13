@@ -2,17 +2,17 @@ import 'dart:convert';
 import 'dart:developer' as developer;
 
 import 'package:device_info_plus/device_info_plus.dart'
-    if (dart.library.html) 'device_info_web.dart';
+    if (dart.library.js_interop) 'device_info_web.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart'
-    if (dart.library.html) 'package_info_web.dart';
+    if (dart.library.js_interop) 'package_info_web.dart';
 
 // Conditional imports for WASM compatibility
 import 'platform_stub.dart'
     if (dart.library.io) 'platform_io.dart'
-    if (dart.library.html) 'platform_web.dart';
+    if (dart.library.js_interop) 'platform_web.dart';
 
 import 'models/screen_info.dart';
 import 'models/track_event.dart';
