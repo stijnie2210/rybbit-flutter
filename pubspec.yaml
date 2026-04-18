@@ -1,20 +1,21 @@
 name: rybbit_flutter
 description: "Flutter client SDK for Rybbit Analytics - track events, pageviews, and user interactions in your Flutter apps."
-version: 0.5.3
+version: 0.5.4
 homepage: https://github.com/stijnie2210/rybbit-flutter
 repository: https://github.com/stijnie2210/rybbit-flutter
 documentation: https://rybbit.io/docs
+license: MIT
 
 environment:
-  sdk: ^3.8.0
-  flutter: ">=3.32.0"
+  sdk: ^3.11.0
+  flutter: ">=3.41.0"
 
 dependencies:
   flutter:
     sdk: flutter
   http: ^1.6.0
-  device_info_plus: ^12.3.0
-  package_info_plus: ^9.0.0
+  device_info_plus: ^13.0.0
+  package_info_plus: ^10.0.0
 
 dev_dependencies:
   flutter_test:
