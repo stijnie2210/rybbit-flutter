@@ -1,5 +1,5 @@
 # Rybbit Flutter SDK 
-<a href="https://rybbit.io"><img src="https://www.rybbit.io/rybbit-text.svg" width="100" height="40"/></a>
+<a href="https://rybbit.io"><img src="https://rybbit.com/rybbit/horizontal_white.svg" width="100" height="40"/></a>
 
 <a href="https://pub.dev/packages/rybbit_flutter"><img src="https://img.shields.io/pub/v/rybbit_flutter.svg" alt="Pub"></a>
 
