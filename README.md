@@ -19,6 +19,7 @@ A Flutter client SDK for [Rybbit Analytics](https://rybbit.io) - a modern, open-
 - ❌ Error tracking with stack traces and context
 - 👤 User identification with traits (custom user properties)
 - 📱 App lifecycle tracking (foreground/background)
+- 📦 Offline event queueing — events are persisted locally and sent automatically when connectivity is restored
 
 ## Installation
 
@@ -26,7 +27,7 @@ Add `rybbit_flutter` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  rybbit_flutter: ^0.5.4
+  rybbit_flutter: ^0.6.0
 ```
 
 Run:
@@ -149,6 +150,10 @@ const config = RybbitConfig(
     '/admin/internal/*',       // Skip internal admin pages
     '*/temp',                  // Skip any temp pages
   ],
+  
+  // Optional: Offline queueing
+  enableOfflineQueue: true,    // Persist events when offline (default: true)
+  maxQueueSize: 1000,          // Max queued events before oldest are dropped
   
   // Optional: Debug settings
   enableLogging: false,        // Debug logging
@@ -333,6 +338,40 @@ await RybbitFlutter.instance.trackError(
 );
 ```
 
+### Offline Queueing
+
+Events are persisted to local storage (Hive) when the device is offline and flushed automatically when connectivity is restored or the app resumes from the background. This happens transparently — no changes to your tracking calls are required.
+
+```dart
+// This event will be queued if the device is offline and sent later
+await RybbitFlutter.instance.trackEvent('purchase_completed', properties: {
+  'order_id': 'ord_789',
+  'revenue': 49.99,
+});
+```
+
+To disable offline queueing:
+
+```dart
+const config = RybbitConfig(
+  apiKey: 'rb_your_key',
+  siteId: 'your_site_id',
+  enableOfflineQueue: false,
+);
+```
+
+To cap the queue at a lower number (e.g., for memory-constrained devices):
+
+```dart
+const config = RybbitConfig(
+  apiKey: 'rb_your_key',
+  siteId: 'your_site_id',
+  maxQueueSize: 100,
+);
+```
+
+> **Note**: The offline queue requires the `connectivity_plus` platform plugin. On Android this needs the `ACCESS_NETWORK_STATE` permission, which is automatically declared by the plugin.
+
 ### Performance Tracking
 
 ```dart
@@ -405,6 +444,8 @@ await RybbitFlutter.instance.trackPageView(
 | `trackQuerystring` | bool | ❌ | `true` | Include query params in pageviews |
 | `autoTrackPageview` | bool | ❌ | `true` | Track initial pageview on init |
 | `skipPatterns` | List<String> | ❌ | `[]` | URL patterns to skip (supports `*` wildcards) |
+| `enableOfflineQueue` | bool | ❌ | `true` | Persist events locally when offline and retry on reconnect |
+| `maxQueueSize` | int | ❌ | `1000` | Maximum events to hold in the offline queue |
 
 ## Platform Support
 
@@ -418,7 +459,7 @@ await RybbitFlutter.instance.trackPageView(
 | ✅ Linux | Full | Desktop support |
 
 **Requirements:**
-- Flutter 3.32.0 or higher
+- Flutter 3.41.0 or higher
 
 ## Troubleshooting
 
@@ -487,6 +528,6 @@ flutter analyze
 
 ## License
 
-This project is licensed under the LGPL-3.0 License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---

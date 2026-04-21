@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer' as developer;
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:device_info_plus/device_info_plus.dart'
     if (dart.library.js_interop) 'device_info_web.dart';
 import 'package:flutter/foundation.dart';
@@ -14,6 +16,7 @@ import 'platform_stub.dart'
     if (dart.library.io) 'platform_io.dart'
     if (dart.library.js_interop) 'platform_web.dart';
 
+import 'event_queue.dart';
 import 'models/screen_info.dart';
 import 'models/track_event.dart';
 import 'pattern_matcher.dart';
@@ -56,6 +59,9 @@ class RybbitFlutter with WidgetsBindingObserver {
   String? _hostname;
   RouteObserver<PageRoute<dynamic>>? _routeObserver;
   bool _initialized = false;
+  EventQueue? _eventQueue;
+  StreamSubscription<List<ConnectivityResult>>? _connectivitySub;
+  bool _isOnline = true;
 
   RybbitFlutter._internal();
 
@@ -92,12 +98,34 @@ class RybbitFlutter with WidgetsBindingObserver {
         WidgetsBinding.instance.addObserver(this);
       }
 
+      if (_config.enableOfflineQueue) {
+        _eventQueue = EventQueue();
+        await _eventQueue!.init();
+        _isOnline = await _checkConnectivity();
+        _connectivitySub =
+            Connectivity().onConnectivityChanged.listen((results) {
+          final wasOnline = _isOnline;
+          _isOnline = results.any((r) => r != ConnectivityResult.none);
+          if (!wasOnline && _isOnline) {
+            unawaited(_flushQueue());
+          }
+        });
+        if (_isOnline) {
+          await _flushQueue();
+        }
+      }
+
       _initialized = true;
       _log('RybbitFlutter initialized successfully');
     } catch (e) {
       _log('Failed to initialize RybbitFlutter: $e');
       rethrow;
     }
+  }
+
+  Future<bool> _checkConnectivity() async {
+    final results = await Connectivity().checkConnectivity();
+    return results.any((r) => r != ConnectivityResult.none);
   }
 
   Future<void> _setupUserAgent() async {
@@ -404,6 +432,14 @@ class RybbitFlutter with WidgetsBindingObserver {
       return;
     }
 
+    if (_config.enableOfflineQueue && !_isOnline) {
+      await _eventQueue!
+          .enqueue(event.toJson(), maxSize: _config.maxQueueSize);
+      _log(
+          'Device offline, event queued: ${event.eventName ?? event.type.toString()}');
+      return;
+    }
+
     final url = Uri.parse('${_config.analyticsHost}/api/track');
     final body = jsonEncode(event.toJson());
 
@@ -432,11 +468,51 @@ class RybbitFlutter with WidgetsBindingObserver {
           _log(
             'Max retries reached for event: ${event.eventName ?? event.type.toString()}',
           );
+          // Only queue on network errors, not server rejections (HttpException).
+          if (_config.enableOfflineQueue && e is! HttpException) {
+            await _eventQueue!
+                .enqueue(event.toJson(), maxSize: _config.maxQueueSize);
+            _log(
+                'Event queued for retry: ${event.eventName ?? event.type.toString()}');
+          }
           break;
         }
 
         await Future.delayed(Duration(milliseconds: 1000 * attempts));
       }
+    }
+  }
+
+  Future<void> _flushQueue() async {
+    final queue = _eventQueue;
+    if (queue == null || queue.isEmpty) return;
+
+    _log('Flushing offline event queue (${queue.length} events)');
+    final eventJsonList = await queue.dequeueAll();
+    final failed = <Map<String, dynamic>>[];
+
+    for (final eventJson in eventJsonList) {
+      final url = Uri.parse('${_config.analyticsHost}/api/track');
+      final body = jsonEncode(eventJson);
+
+      try {
+        final response = await _httpClient
+            .post(url, headers: _buildHeaders(), body: body)
+            .timeout(_config.requestTimeout);
+
+        if (response.statusCode >= 200 && response.statusCode < 300) {
+          _log('Queued event flushed successfully');
+        } else {
+          _log('Server rejected queued event: HTTP ${response.statusCode}');
+        }
+      } catch (e) {
+        _log('Network error flushing queued event: $e');
+        failed.add(eventJson);
+      }
+    }
+
+    for (final eventJson in failed) {
+      await queue.enqueue(eventJson, maxSize: _config.maxQueueSize);
     }
   }
 
@@ -488,6 +564,7 @@ class RybbitFlutter with WidgetsBindingObserver {
 
     switch (state) {
       case AppLifecycleState.resumed:
+        if (_config.enableOfflineQueue) unawaited(_flushQueue());
         trackEvent('app_resumed');
         break;
       case AppLifecycleState.paused:
@@ -523,6 +600,8 @@ class RybbitFlutter with WidgetsBindingObserver {
     if (_config.trackAppLifecycle) {
       WidgetsBinding.instance.removeObserver(this);
     }
+    if (_connectivitySub != null) unawaited(_connectivitySub!.cancel());
+    if (_eventQueue != null) unawaited(_eventQueue!.dispose());
     _httpClient.close();
     _initialized = false;
   }

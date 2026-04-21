@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2026-04-21
+
+### Added
+- **Offline Event Queueing**: Events are now persisted locally when the device is offline and sent automatically when connectivity is restored
+  - Uses [Hive](https://pub.dev/packages/hive_ce) for fast, cross-platform local storage (works on Android, iOS, Web, desktop)
+  - Connectivity changes detected via `connectivity_plus` — flush is triggered the moment the device comes back online
+  - Also flushes on app resume, catching events queued while the app was in the background
+  - Queued events from previous sessions are flushed on the next `initialize()` call
+  - Network errors after retry exhaustion are also queued; HTTP 4xx/5xx responses are not (server rejections won't succeed on retry)
+  - Enabled by default (`enableOfflineQueue: true`) — no code changes required for existing integrations
+- **New `RybbitConfig` options**:
+  - `enableOfflineQueue` (bool, default `true`) — opt out by setting to `false`
+  - `maxQueueSize` (int, default `1000`) — oldest events are dropped when the limit is reached
+
+### Dependencies
+- Added `hive_ce: ^2.0.0`
+- Added `hive_ce_flutter: ^2.0.0`
+- Added `connectivity_plus: ^6.0.0`
+
 ## [0.5.4] - 2026-04-19
 
 ### Changed
@@ -243,6 +262,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Implements singleton pattern for easy access
 - Full type safety with comprehensive null safety
 
+[0.6.0]: https://github.com/stijnie2210/rybbit-flutter/releases/tag/v0.6.0
 [0.5.4]: https://github.com/stijnie2210/rybbit-flutter/releases/tag/v0.5.4
 [0.5.3]: https://github.com/stijnie2210/rybbit-flutter/releases/tag/v0.5.3
 [0.5.2]: https://github.com/stijnie2210/rybbit-flutter/releases/tag/v0.5.2

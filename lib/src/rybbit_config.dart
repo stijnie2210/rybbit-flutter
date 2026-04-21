@@ -36,6 +36,14 @@ class RybbitConfig {
   /// Events matching these patterns will not be sent to analytics.
   final List<String> skipPatterns;
 
+  /// Whether to persist events locally and retry when the device is back online.
+  /// Defaults to true.
+  final bool enableOfflineQueue;
+
+  /// Maximum number of events to hold in the offline queue.
+  /// Oldest events are dropped when the limit is reached. Defaults to 1000.
+  final int maxQueueSize;
+
   /// Creates a new RybbitConfig instance.
   ///
   /// [apiKey] and [siteId] are required. All other parameters have sensible defaults.
@@ -51,6 +59,8 @@ class RybbitConfig {
     this.trackQuerystring = true,
     this.autoTrackPageview = true,
     this.skipPatterns = const [],
+    this.enableOfflineQueue = true,
+    this.maxQueueSize = 1000,
   });
 
   /// Creates a copy of this config with the specified parameters overridden.
@@ -66,6 +76,8 @@ class RybbitConfig {
     bool? trackQuerystring,
     bool? autoTrackPageview,
     List<String>? skipPatterns,
+    bool? enableOfflineQueue,
+    int? maxQueueSize,
   }) {
     return RybbitConfig(
       apiKey: apiKey ?? this.apiKey,
@@ -79,6 +91,8 @@ class RybbitConfig {
       trackQuerystring: trackQuerystring ?? this.trackQuerystring,
       autoTrackPageview: autoTrackPageview ?? this.autoTrackPageview,
       skipPatterns: skipPatterns ?? this.skipPatterns,
+      enableOfflineQueue: enableOfflineQueue ?? this.enableOfflineQueue,
+      maxQueueSize: maxQueueSize ?? this.maxQueueSize,
     );
   }
 
