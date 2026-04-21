@@ -20,9 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `maxQueueSize` (int, default `1000`) — oldest events are dropped when the limit is reached
 
 ### Dependencies
-- Added `hive_ce: ^2.0.0`
-- Added `hive_ce_flutter: ^2.0.0`
-- Added `connectivity_plus: ^6.0.0`
+- Added `hive_ce: ^2.19.3`
+- Added `hive_ce_flutter: ^2.3.4`
+- Added `connectivity_plus: ^7.1.1`
 
 ## [0.5.4] - 2026-04-19
 

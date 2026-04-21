@@ -28,19 +28,21 @@ void main() {
     'pathname': '/home',
   };
 
-  test('enqueue adds events, dequeueAll returns them and clears the box',
-      () async {
-    await queue.enqueue(sampleEvent, maxSize: 100);
-    await queue.enqueue({...sampleEvent, 'pathname': '/about'}, maxSize: 100);
+  test(
+    'enqueue adds events, dequeueAll returns them and clears the box',
+    () async {
+      await queue.enqueue(sampleEvent, maxSize: 100);
+      await queue.enqueue({...sampleEvent, 'pathname': '/about'}, maxSize: 100);
 
-    expect(queue.length, 2);
+      expect(queue.length, 2);
 
-    final events = await queue.dequeueAll();
-    expect(events.length, 2);
-    expect(events[0]['pathname'], '/home');
-    expect(events[1]['pathname'], '/about');
-    expect(queue.length, 0);
-  });
+      final events = await queue.dequeueAll();
+      expect(events.length, 2);
+      expect(events[0]['pathname'], '/home');
+      expect(events[1]['pathname'], '/about');
+      expect(queue.length, 0);
+    },
+  );
 
   test('dequeueAll on empty queue returns empty list', () async {
     final events = await queue.dequeueAll();
@@ -72,22 +74,24 @@ void main() {
     expect(pathnames, isNot(contains('/oldest')));
   });
 
-  test('events survive serialisation round-trip with nested properties',
-      () async {
-    final richEvent = <String, dynamic>{
-      'type': 'custom_event',
-      'site_id': 'site-1',
-      'event_name': 'purchase',
-      'properties': jsonEncode({'amount': 9.99, 'currency': 'USD'}),
-    };
+  test(
+    'events survive serialisation round-trip with nested properties',
+    () async {
+      final richEvent = <String, dynamic>{
+        'type': 'custom_event',
+        'site_id': 'site-1',
+        'event_name': 'purchase',
+        'properties': jsonEncode({'amount': 9.99, 'currency': 'USD'}),
+      };
 
-    await queue.enqueue(richEvent, maxSize: 100);
-    final events = await queue.dequeueAll();
+      await queue.enqueue(richEvent, maxSize: 100);
+      final events = await queue.dequeueAll();
 
-    expect(events.length, 1);
-    expect(events[0]['event_name'], 'purchase');
-    expect(events[0]['properties'], richEvent['properties']);
-  });
+      expect(events.length, 1);
+      expect(events[0]['event_name'], 'purchase');
+      expect(events[0]['properties'], richEvent['properties']);
+    },
+  );
 
   test('isEmpty reflects queue state', () async {
     expect(queue.isEmpty, isTrue);
