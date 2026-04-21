@@ -27,8 +27,10 @@ class EventQueue {
   ///
   /// If the queue already holds [maxSize] events the oldest event is dropped
   /// to make room, keeping total storage bounded.
-  Future<void> enqueue(Map<String, dynamic> eventJson,
-      {required int maxSize}) async {
+  Future<void> enqueue(
+    Map<String, dynamic> eventJson, {
+    required int maxSize,
+  }) async {
     final box = _box;
     if (box == null) return;
 

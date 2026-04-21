@@ -102,8 +102,9 @@ class RybbitFlutter with WidgetsBindingObserver {
         _eventQueue = EventQueue();
         await _eventQueue!.init();
         _isOnline = await _checkConnectivity();
-        _connectivitySub =
-            Connectivity().onConnectivityChanged.listen((results) {
+        _connectivitySub = Connectivity().onConnectivityChanged.listen((
+          results,
+        ) {
           final wasOnline = _isOnline;
           _isOnline = results.any((r) => r != ConnectivityResult.none);
           if (!wasOnline && _isOnline) {
@@ -433,10 +434,10 @@ class RybbitFlutter with WidgetsBindingObserver {
     }
 
     if (_config.enableOfflineQueue && !_isOnline) {
-      await _eventQueue!
-          .enqueue(event.toJson(), maxSize: _config.maxQueueSize);
+      await _eventQueue!.enqueue(event.toJson(), maxSize: _config.maxQueueSize);
       _log(
-          'Device offline, event queued: ${event.eventName ?? event.type.toString()}');
+        'Device offline, event queued: ${event.eventName ?? event.type.toString()}',
+      );
       return;
     }
 
@@ -470,10 +471,13 @@ class RybbitFlutter with WidgetsBindingObserver {
           );
           // Only queue on network errors, not server rejections (HttpException).
           if (_config.enableOfflineQueue && e is! HttpException) {
-            await _eventQueue!
-                .enqueue(event.toJson(), maxSize: _config.maxQueueSize);
+            await _eventQueue!.enqueue(
+              event.toJson(),
+              maxSize: _config.maxQueueSize,
+            );
             _log(
-                'Event queued for retry: ${event.eventName ?? event.type.toString()}');
+              'Event queued for retry: ${event.eventName ?? event.type.toString()}',
+            );
           }
           break;
         }

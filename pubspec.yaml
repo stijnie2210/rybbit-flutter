@@ -16,9 +16,9 @@ dependencies:
   http: ^1.6.0
   device_info_plus: ^13.0.0
   package_info_plus: ^10.0.0
-  hive_ce: ^2.0.0
-  hive_ce_flutter: ^2.0.0
-  connectivity_plus: ^6.0.0
+  hive_ce: ^2.19.3
+  hive_ce_flutter: ^2.3.4
+  connectivity_plus: ^7.1.1
 
 dev_dependencies:
   flutter_test:
