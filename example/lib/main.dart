@@ -20,9 +20,10 @@ void main() async {
   await RybbitFlutter.instance.initialize(
     RybbitConfig(
       analyticsHost: 'https://caddy.rybbit-src.orb.local',
-      apiKey:
-          'rb_vvDwYbLwpEMbUAufNwfUbNuTbUffPtPkWOIEtPmFLLwpFiRhDahkdcXDcPJFXYCT', // Replace with your actual API key
       siteId: '4', // Replace with your actual site ID
+      // apiKey is optional: only set it if your server rejects tracking
+      // requests without one, and only use a key scoped to tracking writes.
+      // apiKey: 'rb_your_scoped_key',
       enableLogging: true, // Enable for debugging
       trackScreenViews: true,
       trackAppLifecycle: true,

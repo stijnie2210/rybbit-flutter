@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2026-09-10
+
+### Fixed
+- **Events were silently classified as bot traffic.** Requests carried no `Accept` or `Accept-Language` header, which scores 5 on Rybbit's header heuristics, exactly the threshold that files an event under `bot_events` instead of `events`. The server answers `{"success":true}` either way, so the loss was invisible. Both headers are now sent on every request, with `Accept-Language` derived from the device locale
+- Removed a real API key that was committed in `example/lib/main.dart`
+
+### Changed
+- **BREAKING**: `apiKey` in `RybbitConfig` is now optional (`String?`) and no longer a required constructor parameter
+  - The `Authorization: Bearer <key>` header is only sent when a key is configured
+  - An empty string is treated the same as null, so no header is sent
+  - Verified against the Rybbit server: `/api/track` and `/api/identify` are public ingestion endpoints and accept requests without any credential. A key only marks a request as trusted server-side ingestion, which lets the payload's own `ip_address` and `user_agent` be used instead of the request's
+
+### Added
+- Authentication section in the README: why no key is needed, what the `ingest:write` scope actually changes, and how to proxy through your own backend instead
+- README guidance to create the site as an app/mobile site in Rybbit, which skips the two browser-shaped bot detection layers
+- `test/live_track_test.dart`, an opt-in test against a running Rybbit instance (set `RYBBIT_LIVE_HOST` and `RYBBIT_LIVE_SITE_ID`; skipped otherwise)
+
+### Notes
+- Verified against a self-hosted Rybbit server (backend 2.8.0 at this time) by sending pageviews, custom events and identify calls with and without a credential, and checking which ClickHouse table they landed in
+- Sites should be created as app/mobile sites in Rybbit. The UA-pattern and header-heuristic layers are skipped for those, and only the layers that apply to native traffic are used
+
+### Migration Notes
+- `RybbitConfig(apiKey: ..., siteId: ...)` keeps working unchanged
+- Code reading `config.apiKey` now gets a `String?` and needs a null check
+- Drop `apiKey` from your config unless you specifically need trusted server-side ingestion, so no credential ships with your app
+
 ## [0.6.0] - 2026-04-21
 
 ### Added
@@ -262,6 +288,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Implements singleton pattern for easy access
 - Full type safety with comprehensive null safety
 
+[0.7.0]: https://github.com/stijnie2210/rybbit-flutter/releases/tag/v0.7.0
 [0.6.0]: https://github.com/stijnie2210/rybbit-flutter/releases/tag/v0.6.0
 [0.5.4]: https://github.com/stijnie2210/rybbit-flutter/releases/tag/v0.5.4
 [0.5.3]: https://github.com/stijnie2210/rybbit-flutter/releases/tag/v0.5.3

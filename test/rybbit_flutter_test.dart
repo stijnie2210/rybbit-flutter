@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:mocktail/mocktail.dart';
 import 'package:rybbit_flutter/rybbit_flutter.dart';
+import 'package:rybbit_flutter/src/request_headers.dart';
 
 class MockHttpClient extends Mock implements http.Client {}
 
@@ -81,6 +82,81 @@ void main() {
       expect(updated.siteId, '999');
       expect(updated.trackQuerystring, false);
       expect(updated.skipPatterns, ['/original/*']);
+    });
+  });
+
+  group('apiKey is optional', () {
+    test('config can be created without an apiKey', () {
+      const config = RybbitConfig(siteId: '123');
+
+      expect(config.apiKey, isNull);
+      expect(config.siteId, '123');
+    });
+
+    test('copyWith keeps a null apiKey null', () {
+      const original = RybbitConfig(siteId: '123');
+
+      final updated = original.copyWith(enableLogging: true);
+
+      expect(updated.apiKey, isNull);
+      expect(updated.enableLogging, true);
+    });
+
+    test('omits Authorization header when no apiKey is set', () {
+      final headers = buildRequestHeaders(userAgent: 'TestAgent/1.0');
+
+      expect(headers.containsKey('Authorization'), false);
+      expect(headers['Content-Type'], 'application/json');
+      expect(headers['User-Agent'], 'TestAgent/1.0');
+    });
+
+    test('always sends the headers bot detection scores on', () {
+      final headers = buildRequestHeaders(language: 'nl-NL');
+
+      // Missing Accept-Language scores 3 and missing Accept scores 2, which
+      // together reach the threshold that files an event under bot_events.
+      expect(headers['Accept'], 'application/json');
+      expect(headers['Accept-Language'], 'nl-NL');
+    });
+
+    test('omits Authorization header when apiKey is empty', () {
+      final headers = buildRequestHeaders(apiKey: '');
+
+      expect(headers.containsKey('Authorization'), false);
+    });
+
+    test('sends Authorization header when apiKey is set', () {
+      final headers = buildRequestHeaders(apiKey: 'rb_test123');
+
+      expect(headers['Authorization'], 'Bearer rb_test123');
+    });
+
+    test('falls back to a default User-Agent', () {
+      final headers = buildRequestHeaders();
+
+      expect(headers['User-Agent'], 'RybbitFlutter');
+    });
+  });
+
+  group('normalizeAcceptLanguage', () {
+    test('keeps a valid language tag', () {
+      expect(normalizeAcceptLanguage('en-US'), 'en-US');
+      expect(normalizeAcceptLanguage('nl'), 'nl');
+      expect(normalizeAcceptLanguage('zh-Hans-CN'), 'zh-Hans-CN');
+    });
+
+    test('converts a platform locale into a language tag', () {
+      expect(normalizeAcceptLanguage('en_US'), 'en-US');
+      expect(normalizeAcceptLanguage('en_US.UTF-8'), 'en-US');
+      expect(normalizeAcceptLanguage('nl_NL@posix'), 'nl-NL');
+    });
+
+    test('falls back to en for anything unusable', () {
+      expect(normalizeAcceptLanguage(null), 'en');
+      expect(normalizeAcceptLanguage(''), 'en');
+      expect(normalizeAcceptLanguage('.UTF-8'), 'en');
+      expect(normalizeAcceptLanguage('en US'), 'en');
+      expect(normalizeAcceptLanguage('C'), 'C');
     });
   });
 

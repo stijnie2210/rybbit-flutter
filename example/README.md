@@ -29,7 +29,6 @@ Edit `lib/main.dart` and replace the placeholder values:
 ```dart
 await RybbitFlutter.instance.initialize(
   RybbitConfig(
-    apiKey: 'your-actual-api-key',     // Get from Rybbit dashboard
     siteId: 'your-actual-site-id',     // Get from Rybbit dashboard
     enableLogging: true,               // Enable for debugging
     trackScreenViews: true,
@@ -37,6 +36,11 @@ await RybbitFlutter.instance.initialize(
   ),
 );
 ```
+
+`apiKey` is optional. Only set it if your server rejects tracking requests
+without one, and use a key scoped to writing tracking data, since anything in
+an app binary can be extracted from it. See the Authentication section in the
+root README.
 
 ### 2. Get Your Credentials
 

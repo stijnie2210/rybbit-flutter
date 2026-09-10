@@ -20,6 +20,7 @@ import 'event_queue.dart';
 import 'models/screen_info.dart';
 import 'models/track_event.dart';
 import 'pattern_matcher.dart';
+import 'request_headers.dart';
 import 'rybbit_config.dart';
 
 /// The main entry point for the Rybbit Flutter SDK.
@@ -31,8 +32,10 @@ import 'rybbit_config.dart';
 /// ```dart
 /// // Initialize the SDK
 /// await RybbitFlutter.instance.initialize(RybbitConfig(
-///   apiKey: 'your-api-key',
 ///   siteId: 'your-site-id',
+///   // Only if your server requires one, and only a key scoped to
+///   // writing tracking data:
+///   // apiKey: 'your-api-key',
 /// ));
 ///
 /// // Track a pageview
@@ -419,13 +422,11 @@ class RybbitFlutter with WidgetsBindingObserver {
     return _routeObserver!;
   }
 
-  Map<String, String> _buildHeaders() {
-    return {
-      'Content-Type': 'application/json',
-      'User-Agent': _userAgent ?? 'RybbitFlutter',
-      'Authorization': 'Bearer ${_config.apiKey}',
-    };
-  }
+  Map<String, String> _buildHeaders() => buildRequestHeaders(
+    apiKey: _config.apiKey,
+    userAgent: _userAgent,
+    language: PlatformInfo.localeName,
+  );
 
   Future<void> _sendTrackingEvent(TrackEvent event) async {
     if (!_initialized) {
