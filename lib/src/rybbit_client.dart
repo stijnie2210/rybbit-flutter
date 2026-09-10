@@ -65,8 +65,17 @@ class RybbitFlutter with WidgetsBindingObserver {
   EventQueue? _eventQueue;
   StreamSubscription<List<ConnectivityResult>>? _connectivitySub;
   bool _isOnline = true;
+  final StreamController<String> _logController =
+      StreamController<String>.broadcast();
 
   RybbitFlutter._internal();
+
+  /// Stream of internal SDK log lines (init, request attempts, HTTP
+  /// responses, retries, queueing, server-side rejections). Emits regardless
+  /// of [RybbitConfig.enableLogging]; that flag only controls whether the
+  /// same lines also go to `dart:developer` log. Useful for surfacing what
+  /// the SDK is actually doing in a debug UI.
+  Stream<String> get logStream => _logController.stream;
 
   /// Gets the singleton instance of RybbitFlutter.
   static RybbitFlutter get instance {
@@ -97,10 +106,6 @@ class RybbitFlutter with WidgetsBindingObserver {
       await _setupUserAgent();
       await _setupHostname();
 
-      if (_config.trackAppLifecycle) {
-        WidgetsBinding.instance.addObserver(this);
-      }
-
       if (_config.enableOfflineQueue) {
         _eventQueue = EventQueue();
         await _eventQueue!.init();
@@ -119,7 +124,16 @@ class RybbitFlutter with WidgetsBindingObserver {
         }
       }
 
+      // Set before registering the lifecycle observer: the platform can
+      // deliver a lifecycle message (e.g. "resumed") as soon as the observer
+      // is added, and didChangeAppLifecycleState() calls trackEvent(), which
+      // throws StateError if _initialized is still false at that point.
       _initialized = true;
+
+      if (_config.trackAppLifecycle) {
+        WidgetsBinding.instance.addObserver(this);
+      }
+
       _log('RybbitFlutter initialized successfully');
     } catch (e) {
       _log('Failed to initialize RybbitFlutter: $e');
@@ -422,6 +436,26 @@ class RybbitFlutter with WidgetsBindingObserver {
     return _routeObserver!;
   }
 
+  /// Rybbit's bot detection can reject a hit while still answering `200
+  /// {"success":true}` — e.g. `{"success":true,"message":"Event not tracked -
+  /// bot detected using header heuristics"}`. Returns the rejection message
+  /// when that happened, or null for a genuine success, so callers can tell
+  /// "sent" apart from "silently dropped".
+  String? _serverRejectionReason(http.Response response) {
+    try {
+      final decoded = jsonDecode(response.body);
+      if (decoded is Map && decoded['success'] == true) {
+        final message = decoded['message'];
+        if (message is String && message.toLowerCase().contains('not tracked')) {
+          return message;
+        }
+      }
+    } catch (_) {
+      // Non-JSON body; nothing to inspect.
+    }
+    return null;
+  }
+
   Map<String, String> _buildHeaders() => buildRequestHeaders(
     apiKey: _config.apiKey,
     userAgent: _userAgent,
@@ -453,9 +487,16 @@ class RybbitFlutter with WidgetsBindingObserver {
             .timeout(_config.requestTimeout);
 
         if (response.statusCode >= 200 && response.statusCode < 300) {
-          _log(
-            'Event tracked successfully: ${event.eventName ?? event.type.toString()}',
-          );
+          final rejection = _serverRejectionReason(response);
+          if (rejection != null) {
+            _log(
+              'Event REJECTED by server (not tracked): ${event.eventName ?? event.type.toString()} -> $rejection',
+            );
+          } else {
+            _log(
+              'Event tracked successfully: ${event.eventName ?? event.type.toString()}',
+            );
+          }
           return;
         } else {
           throw HttpException('HTTP ${response.statusCode}: ${response.body}');
@@ -506,7 +547,12 @@ class RybbitFlutter with WidgetsBindingObserver {
             .timeout(_config.requestTimeout);
 
         if (response.statusCode >= 200 && response.statusCode < 300) {
-          _log('Queued event flushed successfully');
+          final rejection = _serverRejectionReason(response);
+          if (rejection != null) {
+            _log('Queued event REJECTED by server (not tracked): $rejection');
+          } else {
+            _log('Queued event flushed successfully');
+          }
         } else {
           _log('Server rejected queued event: HTTP ${response.statusCode}');
         }
@@ -542,7 +588,12 @@ class RybbitFlutter with WidgetsBindingObserver {
             .timeout(_config.requestTimeout);
 
         if (response.statusCode >= 200 && response.statusCode < 300) {
-          _log('Identify sent successfully for user: $userId');
+          final rejection = _serverRejectionReason(response);
+          if (rejection != null) {
+            _log('Identify REJECTED by server (not tracked): $userId -> $rejection');
+          } else {
+            _log('Identify sent successfully for user: $userId');
+          }
           return;
         } else {
           throw HttpException('HTTP ${response.statusCode}: ${response.body}');
@@ -593,6 +644,7 @@ class RybbitFlutter with WidgetsBindingObserver {
   }
 
   void _log(String message) {
+    _logController.add(message);
     if (_config.enableLogging) {
       developer.log(message, name: 'RybbitFlutter');
     }
