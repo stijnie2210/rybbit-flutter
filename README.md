@@ -42,7 +42,12 @@ flutter pub get
 
 1. Sign up at [Rybbit Analytics](https://app.rybbit.io)
 2. Create a new site/project
-3. Copy your **Site ID** and generate an **API Key**
+3. Copy your **Site ID**
+
+Create the site as an **app/mobile** site, not a website: Rybbit skips its
+browser-shaped bot detection layers for app sites. The Site ID is all the SDK
+needs. An **API Key** is not required, and if you use one anyway it should carry
+only the `ingest:write` scope. See [Authentication](#authentication).
 
 ### 2. Initialize the SDK
 
@@ -52,7 +57,6 @@ import 'package:rybbit_flutter/rybbit_flutter.dart';
 // Initialize in your main() function or app startup
 await RybbitFlutter.instance.initialize(
   RybbitConfig(
-    apiKey: 'rb_your_api_key_here',
     siteId: 'your_site_id',
     enableLogging: true, // Enable for development
   ),
@@ -122,14 +126,76 @@ try {
 }
 ```
 
+## Authentication
+
+**An API key is not required.** `POST /api/track` and `POST /api/identify` are
+public ingestion endpoints: they identify the site from `site_id` in the
+payload, and a request with no `Authorization` header is accepted normally. This
+is verified against the Rybbit server, where an under-scoped or absent bearer
+token degrades to ordinary client-side traffic rather than a 4xx.
+
+Leaving `apiKey` unset is therefore the recommended setup, and means no
+credential ships inside your app binary.
+
+### What an API key actually changes
+
+A key that carries the `ingest:write` scope for the site marks the request as
+*trusted server-side ingestion*, which lets the payload speak for someone else:
+
+- `ip_address` and `user_agent` from the payload are used instead of the ones on
+  the HTTP request. Without a key, both are taken from the request itself.
+- Bot detection treats the request as first-party traffic and only classifies
+  the reported user agent.
+
+That matters when you forward events from your own backend, not when a device
+reports its own activity. A Flutter app sends its real request headers, so it
+does not need any of it.
+
+If you do use a key, create it with **only** the `ingest:write` scope. Anything
+in an APK or IPA can be extracted from it, so a personal or organization key
+with broad read/write access must never be bundled into an app. The alternative
+is to point `analyticsHost` at a backend of your own and attach the key there,
+so nothing sensitive ships with the app at all.
+
+```dart
+// Recommended: no credential in the binary
+const config = RybbitConfig(siteId: 'your_site_id');
+
+// Only if you have a reason to: a key scoped to ingest:write
+const config = RybbitConfig(
+  siteId: 'your_site_id',
+  apiKey: 'rb_ingest_write_key',
+);
+
+// Or keep the key server side entirely
+const config = RybbitConfig(
+  siteId: 'your_site_id',
+  analyticsHost: 'https://analytics-proxy.yourcompany.com',
+);
+```
+
+### Create the site as an app site
+
+Rybbit's bot detection has two browser-shaped layers: it reads a native HTTP
+client's user agent as a scripting framework, and treats missing browser-only
+headers as suspicious. Both are skipped for sites whose type is **app/mobile**,
+so create your site that way in Rybbit rather than as a website.
+
+The SDK also sends `Accept` and `Accept-Language` on every request, which keeps
+it under the header heuristic threshold on sites that are typed as websites.
+Rejected events still return `{"success":true}`, so if events never show up in
+your dashboard this is worth checking before anything else.
+
 ## Usage Examples
 
 ### Configuration Options
 
 ```dart
 const config = RybbitConfig(
-  apiKey: 'rb_your_api_key_here',
   siteId: 'your_site_id',
+
+  // Optional: not required for tracking (see Authentication)
+  apiKey: 'rb_your_api_key_here',
   
   // Optional: Custom analytics server
   analyticsHost: 'https://analytics.yourcompany.com',
@@ -167,7 +233,6 @@ If you prefer manual control over screen tracking:
 ```dart
 // Disable automatic tracking and skip certain patterns
 const config = RybbitConfig(
-  apiKey: 'rb_your_key',
   siteId: 'your_site_id',
   trackScreenViews: false,
   skipPatterns: ['/debug/*', '/internal/*'],
@@ -354,7 +419,6 @@ To disable offline queueing:
 
 ```dart
 const config = RybbitConfig(
-  apiKey: 'rb_your_key',
   siteId: 'your_site_id',
   enableOfflineQueue: false,
 );
@@ -364,7 +428,6 @@ To cap the queue at a lower number (e.g., for memory-constrained devices):
 
 ```dart
 const config = RybbitConfig(
-  apiKey: 'rb_your_key',
   siteId: 'your_site_id',
   maxQueueSize: 100,
 );
@@ -433,8 +496,8 @@ await RybbitFlutter.instance.trackPageView(
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
-| `apiKey` | String | ✅ | - | Your Rybbit API key |
 | `siteId` | String | ✅ | - | Your Rybbit site ID |
+| `apiKey` | String? | ❌ | `null` | Not required for tracking. Sent as a Bearer token when set; no `Authorization` header is sent when null |
 | `analyticsHost` | String | ❌ | `https://app.rybbit.io` | Analytics server URL |
 | `enableLogging` | bool | ❌ | `false` | Enable debug logging |
 | `requestTimeout` | Duration | ❌ | `10s` | Network request timeout |
@@ -466,10 +529,15 @@ await RybbitFlutter.instance.trackPageView(
 ### Common Issues
 
 **Events not appearing in dashboard:**
-1. Verify your API key and Site ID are correct
-2. Check network connectivity
-3. Enable logging to see debug information
-4. Ensure you're calling `initialize()` before tracking events
+1. Verify your Site ID is correct
+2. Check whether the events were classified as bot traffic. Rybbit answers
+   `{"success":true}` either way and files rejected events under `bot_events`
+   instead of `events`, so a 200 is not proof an event was stored. Creating the
+   site as an app/mobile site avoids the browser-shaped detection layers (see
+   [Authentication](#authentication))
+3. Check network connectivity
+4. Enable logging to see debug information
+5. Ensure you're calling `initialize()` before tracking events
 
 **Route observer not working:**
 1. Make sure you've added the route observer to `MaterialApp`
@@ -487,7 +555,6 @@ Enable debug logging to troubleshoot issues:
 
 ```dart
 const config = RybbitConfig(
-  apiKey: 'rb_your_key',
   siteId: 'your_site_id',
   enableLogging: true,
 );

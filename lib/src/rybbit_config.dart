@@ -2,8 +2,19 @@
 ///
 /// Contains all the settings needed to initialize and configure the SDK.
 class RybbitConfig {
-  /// Your Rybbit API key for authentication.
-  final String apiKey;
+  /// Your Rybbit API key, if the server requires one.
+  ///
+  /// When set, it is sent as a Bearer token on every request. When left null,
+  /// no `Authorization` header is sent at all and tracking relies on [siteId]
+  /// alone, the same way the web tracking script does.
+  ///
+  /// Only supply a key that is scoped to writing tracking data. Anything
+  /// bundled into an app binary can be extracted from it, so an unscoped
+  /// personal or organization key does not belong here. If your server
+  /// requires a key you cannot scope down, send events through a backend of
+  /// your own instead by pointing [analyticsHost] at it and attaching the key
+  /// server side.
+  final String? apiKey;
 
   /// Your Rybbit site ID.
   final String siteId;
@@ -46,10 +57,10 @@ class RybbitConfig {
 
   /// Creates a new RybbitConfig instance.
   ///
-  /// [apiKey] and [siteId] are required. All other parameters have sensible defaults.
+  /// [siteId] is required. All other parameters have sensible defaults.
   const RybbitConfig({
-    required this.apiKey,
     required this.siteId,
+    this.apiKey,
     this.analyticsHost = 'https://app.rybbit.io',
     this.enableLogging = false,
     this.requestTimeout = const Duration(seconds: 10),
