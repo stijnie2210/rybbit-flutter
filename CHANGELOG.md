@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2026-10-08
+
+### Added
+- **Persistent `anonymous_id`.** On first launch the SDK generates a random v4 UUID, stores it in Hive and sends it as `anonymous_id` on every event and identify call
+  - Before, no id was sent, so the server identified visitors by a hash of IP address and user agent. That hash changes whenever a phone switches between Wi-Fi and cellular, which split one visitor into several, and `identify` could not reliably link earlier anonymous events
+  - New `RybbitConfig.persistAnonymousId` (default `true`) turns it off
+  - New `RybbitFlutter.resetAnonymousId()` replaces the id, for example on logout or when consent is withdrawn
+  - New `RybbitFlutter.anonymousId` getter
+
+### Fixed
+- **Fallback User-Agents were classified as bots.** When device info could not be read the SDK sent `RybbitFlutter`, and on platforms without a dedicated format it sent a bare `App/1.0`. Both match a generic isbot pattern on the Rybbit server, which files the event under `bot_events` on sites typed as websites. The fallbacks are now `RybbitFlutter/<version> (Flutter)` and `App/1.0 (<platform>) Flutter`
+
+### Notes
+- The device-specific User-Agents are unchanged. Checked against the server's `ua-parser-js` 2.0.3 and its bot patterns: Android and iOS strings already resolve to the right OS, version and device model, and are not flagged
+- Visitor ids change once for existing installs, because the server now hashes the `anonymous_id` instead of IP + UA
+
 ## [0.7.0] - 2026-09-10
 
 ### Fixed

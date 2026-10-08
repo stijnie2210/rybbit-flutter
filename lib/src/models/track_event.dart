@@ -41,6 +41,13 @@ class TrackEvent {
   /// Custom user identifier for session tracking
   final String? userId;
 
+  /// Random id that identifies this installation (sent as `anonymous_id`).
+  ///
+  /// The server derives the visitor id from it, so visitors stay recognisable
+  /// across network changes. When null, the server falls back to a hash of
+  /// IP address and user agent.
+  final String? anonymousId;
+
   /// Event name for custom events (required for customEvent and outbound types)
   final String? eventName;
 
@@ -82,6 +89,7 @@ class TrackEvent {
     this.pageTitle,
     this.referrer,
     this.userId,
+    this.anonymousId,
     this.eventName,
     this.properties,
     this.queryParams,
@@ -102,6 +110,7 @@ class TrackEvent {
     this.pageTitle,
     this.referrer,
     this.userId,
+    this.anonymousId,
     this.queryParams,
     this.language,
     this.screenWidth,
@@ -124,6 +133,7 @@ class TrackEvent {
     this.pageTitle,
     this.referrer,
     this.userId,
+    this.anonymousId,
     this.queryParams,
     this.language,
     this.screenWidth,
@@ -143,6 +153,7 @@ class TrackEvent {
     this.pageTitle,
     this.referrer,
     this.userId,
+    this.anonymousId,
     this.queryParams,
     this.language,
     this.screenWidth,
@@ -165,6 +176,7 @@ class TrackEvent {
     this.pageTitle,
     this.referrer,
     this.userId,
+    this.anonymousId,
     this.queryParams,
     this.language,
     this.screenWidth,
@@ -186,6 +198,7 @@ class TrackEvent {
     if (pageTitle != null) json['page_title'] = pageTitle;
     if (referrer != null) json['referrer'] = referrer;
     if (userId != null) json['user_id'] = userId;
+    if (anonymousId != null) json['anonymous_id'] = anonymousId;
     if (queryParams != null && queryParams!.isNotEmpty) {
       final queryString = queryParams!.entries
           .map(
@@ -235,6 +248,7 @@ class TrackEvent {
     String? pageTitle,
     String? referrer,
     String? userId,
+    String? anonymousId,
     String? eventName,
     Map<String, dynamic>? properties,
     Map<String, String>? queryParams,
@@ -252,6 +266,7 @@ class TrackEvent {
       pageTitle: pageTitle ?? this.pageTitle,
       referrer: referrer ?? this.referrer,
       userId: userId ?? this.userId,
+      anonymousId: anonymousId ?? this.anonymousId,
       eventName: eventName ?? this.eventName,
       properties: properties ?? this.properties,
       queryParams: queryParams ?? this.queryParams,

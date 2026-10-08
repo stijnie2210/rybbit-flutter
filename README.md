@@ -27,7 +27,7 @@ Add `rybbit_flutter` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  rybbit_flutter: ^0.6.0
+  rybbit_flutter: ^0.8.0
 ```
 
 Run:
@@ -220,6 +220,9 @@ const config = RybbitConfig(
   // Optional: Offline queueing
   enableOfflineQueue: true,    // Persist events when offline (default: true)
   maxQueueSize: 1000,          // Max queued events before oldest are dropped
+
+  // Optional: Visitor identity
+  persistAnonymousId: true,    // Store a random install id (default: true)
   
   // Optional: Debug settings
   enableLogging: false,        // Debug logging
@@ -354,7 +357,24 @@ await RybbitFlutter.instance.trackEvent(
 
 // Clear user ID on logout
 RybbitFlutter.instance.clearUserId();
+
+// Optionally start over with a new anonymous id, so later events can't be
+// linked to this user's earlier ones
+await RybbitFlutter.instance.resetAnonymousId();
 ```
+
+#### Anonymous ID
+
+On first launch the SDK generates a random id (a v4 UUID) for the installation,
+stores it locally and sends it as `anonymous_id` on every event and identify
+call. Rybbit derives the visitor id from it, so a visitor stays the same when a
+phone switches between Wi-Fi and cellular, and `identify` can link the
+visitor's earlier anonymous events to the user.
+
+The id contains no device or user information. It is still a persistent
+identifier, so mention it in your privacy statement. Set
+`persistAnonymousId: false` to send no id at all; the server then identifies
+visitors by a hash of IP address and user agent, like it did before 0.8.0.
 
 ### Error Tracking
 
@@ -467,6 +487,7 @@ await RybbitFlutter.instance.trackEvent(
 - `identify(String userId, {Map<String, dynamic>? traits})` - Associate events with a user ID and optionally store custom traits on the server
 - `setTraits(Map<String, dynamic> traits)` - Update traits for the current identified user without creating a new alias
 - `clearUserId()` - Clear the current user ID
+- `resetAnonymousId()` - Replace the anonymous id with a new random one
 - `dispose()` - Clean up resources (call when app is disposed)
 
 #### Query Parameters
@@ -490,6 +511,7 @@ await RybbitFlutter.instance.trackPageView(
 
 - `isInitialized` - Whether the SDK has been initialized
 - `userId` - Current user ID (if set)
+- `anonymousId` - The anonymous id of this installation (null when `persistAnonymousId` is off)
 - `routeObserver` - Route observer for automatic screen tracking
 
 ### RybbitConfig
@@ -509,6 +531,7 @@ await RybbitFlutter.instance.trackPageView(
 | `skipPatterns` | List<String> | ❌ | `[]` | URL patterns to skip (supports `*` wildcards) |
 | `enableOfflineQueue` | bool | ❌ | `true` | Persist events locally when offline and retry on reconnect |
 | `maxQueueSize` | int | ❌ | `1000` | Maximum events to hold in the offline queue |
+| `persistAnonymousId` | bool | ❌ | `true` | Store a random install id and send it as `anonymous_id` |
 
 ## Platform Support
 
