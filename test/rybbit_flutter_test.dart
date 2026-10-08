@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:mocktail/mocktail.dart';
 import 'package:rybbit_flutter/rybbit_flutter.dart';
 import 'package:rybbit_flutter/src/request_headers.dart';
+import 'package:rybbit_flutter/src/version.dart';
 
 class MockHttpClient extends Mock implements http.Client {}
 
@@ -66,6 +69,15 @@ void main() {
       expect(updated.trackQuerystring, false);
       expect(updated.autoTrackPageview, true); // unchanged
       expect(updated.skipPatterns, ['/skip/*']);
+    });
+
+    test('persists the anonymous id by default and can turn it off', () {
+      const config = RybbitConfig(siteId: 'test-site');
+      expect(config.persistAnonymousId, isTrue);
+      expect(
+        config.copyWith(persistAnonymousId: false).persistAnonymousId,
+        isFalse,
+      );
     });
 
     test('copyWith preserves original values when null is passed', () {
@@ -134,7 +146,22 @@ void main() {
     test('falls back to a default User-Agent', () {
       final headers = buildRequestHeaders();
 
-      expect(headers['User-Agent'], 'RybbitFlutter');
+      expect(headers['User-Agent'], defaultUserAgent);
+    });
+
+    test('default User-Agent carries a version and platform comment', () {
+      // A bare `RybbitFlutter` matches a generic bot pattern on the server.
+      expect(defaultUserAgent, 'RybbitFlutter/$rybbitFlutterVersion (Flutter)');
+    });
+
+    test('package version constant matches pubspec.yaml', () {
+      final pubspec = File('pubspec.yaml').readAsStringSync();
+      final version = RegExp(
+        r'^version: (.+)$',
+        multiLine: true,
+      ).firstMatch(pubspec)!.group(1);
+
+      expect(rybbitFlutterVersion, version);
     });
   });
 
@@ -249,6 +276,23 @@ void main() {
       expect(json['pathname'], '/test');
       expect(json['hostname'], 'example.com');
       expect(json['querystring'], '?utm_source=google&utm_medium=cpc');
+    });
+
+    test('includes anonymous_id in JSON when set', () {
+      final event = TrackEvent.customEvent(
+        siteId: 'test-site',
+        eventName: 'clicked',
+        anonymousId: 'abc-123',
+      );
+
+      expect(event.toJson()['anonymous_id'], 'abc-123');
+      expect(event.copyWith(pathname: '/x').anonymousId, 'abc-123');
+    });
+
+    test('omits anonymous_id from JSON when not set', () {
+      final event = TrackEvent.pageview(siteId: 'test-site', pathname: '/home');
+
+      expect(event.toJson().containsKey('anonymous_id'), isFalse);
     });
 
     test('outbound event JSON does not include event_name', () {

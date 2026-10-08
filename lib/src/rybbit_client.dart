@@ -17,11 +17,13 @@ import 'platform_stub.dart'
     if (dart.library.js_interop) 'platform_web.dart';
 
 import 'event_queue.dart';
+import 'identity_store.dart';
 import 'models/screen_info.dart';
 import 'models/track_event.dart';
 import 'pattern_matcher.dart';
 import 'request_headers.dart';
 import 'rybbit_config.dart';
+import 'version.dart';
 
 /// The main entry point for the Rybbit Flutter SDK.
 ///
@@ -63,6 +65,7 @@ class RybbitFlutter with WidgetsBindingObserver {
   RouteObserver<PageRoute<dynamic>>? _routeObserver;
   bool _initialized = false;
   EventQueue? _eventQueue;
+  IdentityStore? _identityStore;
   StreamSubscription<List<ConnectivityResult>>? _connectivitySub;
   bool _isOnline = true;
 
@@ -96,6 +99,18 @@ class RybbitFlutter with WidgetsBindingObserver {
     try {
       await _setupUserAgent();
       await _setupHostname();
+
+      if (_config.persistAnonymousId) {
+        try {
+          final store = IdentityStore();
+          await store.init();
+          _identityStore = store;
+        } catch (e) {
+          // Tracking still works without it; the server then falls back to
+          // an IP and user agent hash.
+          _log('Failed to load anonymous ID: $e');
+        }
+      }
 
       if (_config.trackAppLifecycle) {
         WidgetsBinding.instance.addObserver(this);
@@ -173,11 +188,14 @@ class RybbitFlutter with WidgetsBindingObserver {
         _userAgent =
             '${packageInfo.appName}/${packageInfo.version} (Linux x86_64) Flutter';
       } else {
-        _userAgent = '${packageInfo.appName}/${packageInfo.version}';
+        // A bare `name/version` matches a generic bot pattern on the server,
+        // so always include a platform comment.
+        _userAgent =
+            '${packageInfo.appName}/${packageInfo.version} (${defaultTargetPlatform.name}) Flutter';
       }
     } catch (e) {
       _log('Failed to setup user agent: $e');
-      _userAgent = 'RybbitFlutter';
+      _userAgent = defaultUserAgent;
     }
   }
 
@@ -233,6 +251,7 @@ class RybbitFlutter with WidgetsBindingObserver {
       screenHeight: screenInfo.height.round(),
       userAgent: _userAgent,
       userId: _userId,
+      anonymousId: anonymousId,
       language: PlatformInfo.localeName,
     );
 
@@ -273,6 +292,7 @@ class RybbitFlutter with WidgetsBindingObserver {
       screenHeight: screenInfo.height.round(),
       userAgent: _userAgent,
       userId: _userId,
+      anonymousId: anonymousId,
       language: PlatformInfo.localeName,
     );
 
@@ -303,6 +323,7 @@ class RybbitFlutter with WidgetsBindingObserver {
       screenHeight: screenInfo.height.round(),
       userAgent: _userAgent,
       userId: _userId,
+      anonymousId: anonymousId,
       language: PlatformInfo.localeName,
     );
 
@@ -360,6 +381,7 @@ class RybbitFlutter with WidgetsBindingObserver {
       screenHeight: screenInfo.height.round(),
       userAgent: _userAgent,
       userId: _userId,
+      anonymousId: anonymousId,
       language: PlatformInfo.localeName,
     );
 
@@ -412,6 +434,25 @@ class RybbitFlutter with WidgetsBindingObserver {
 
   /// Gets the currently associated user ID, if any.
   String? get userId => _userId;
+
+  /// The random id that identifies this installation, sent as `anonymous_id`
+  /// on every event and identify call.
+  ///
+  /// Null when [RybbitConfig.persistAnonymousId] is off or before
+  /// [initialize] has completed.
+  String? get anonymousId => _identityStore?.anonymousId;
+
+  /// Replaces the anonymous id with a new random one, so later events can no
+  /// longer be linked to earlier ones on the server.
+  ///
+  /// Call this together with [clearUserId] when a user logs out or withdraws
+  /// consent. Does nothing when [RybbitConfig.persistAnonymousId] is off.
+  Future<void> resetAnonymousId() async {
+    final store = _identityStore;
+    if (store == null) return;
+    await store.reset();
+    _log('Anonymous ID reset');
+  }
 
   /// Gets a route observer for automatic screen tracking.
   ///
@@ -530,6 +571,7 @@ class RybbitFlutter with WidgetsBindingObserver {
     final body = jsonEncode({
       'site_id': _config.siteId,
       'user_id': userId,
+      'anonymous_id': ?anonymousId,
       'traits': ?traits,
       'is_new_identify': isNewIdentify,
     });
@@ -607,6 +649,7 @@ class RybbitFlutter with WidgetsBindingObserver {
     }
     if (_connectivitySub != null) unawaited(_connectivitySub!.cancel());
     if (_eventQueue != null) unawaited(_eventQueue!.dispose());
+    if (_identityStore != null) unawaited(_identityStore!.dispose());
     _httpClient.close();
     _initialized = false;
   }

@@ -1,3 +1,5 @@
+import 'version.dart';
+
 /// Builds the HTTP headers used for requests to the Rybbit server.
 ///
 /// The `Authorization` header is only included when an [apiKey] is configured.
@@ -19,7 +21,7 @@ Map<String, String> buildRequestHeaders({
     'Content-Type': 'application/json',
     'Accept': 'application/json',
     'Accept-Language': normalizeAcceptLanguage(language),
-    'User-Agent': userAgent ?? 'RybbitFlutter',
+    'User-Agent': userAgent ?? defaultUserAgent,
     if (apiKey != null && apiKey.isNotEmpty) 'Authorization': 'Bearer $apiKey',
   };
 }

@@ -51,6 +51,16 @@ class RybbitConfig {
   /// Defaults to true.
   final bool enableOfflineQueue;
 
+  /// Whether to store a random id for this installation and send it as
+  /// `anonymous_id`. Defaults to true.
+  ///
+  /// With it, Rybbit recognises a visitor across network changes and can link
+  /// earlier anonymous events when [RybbitFlutter.identify] is called. Without
+  /// it, the server identifies visitors by a hash of IP address and user
+  /// agent. The id is random and can be replaced with
+  /// [RybbitFlutter.resetAnonymousId].
+  final bool persistAnonymousId;
+
   /// Maximum number of events to hold in the offline queue.
   /// Oldest events are dropped when the limit is reached. Defaults to 1000.
   final int maxQueueSize;
@@ -72,6 +82,7 @@ class RybbitConfig {
     this.skipPatterns = const [],
     this.enableOfflineQueue = true,
     this.maxQueueSize = 1000,
+    this.persistAnonymousId = true,
   });
 
   /// Creates a copy of this config with the specified parameters overridden.
@@ -89,6 +100,7 @@ class RybbitConfig {
     List<String>? skipPatterns,
     bool? enableOfflineQueue,
     int? maxQueueSize,
+    bool? persistAnonymousId,
   }) {
     return RybbitConfig(
       apiKey: apiKey ?? this.apiKey,
@@ -104,6 +116,7 @@ class RybbitConfig {
       skipPatterns: skipPatterns ?? this.skipPatterns,
       enableOfflineQueue: enableOfflineQueue ?? this.enableOfflineQueue,
       maxQueueSize: maxQueueSize ?? this.maxQueueSize,
+      persistAnonymousId: persistAnonymousId ?? this.persistAnonymousId,
     );
   }
 
