@@ -22,6 +22,7 @@ import 'models/screen_info.dart';
 import 'models/track_event.dart';
 import 'pattern_matcher.dart';
 import 'request_headers.dart';
+import 'route_observer.dart';
 import 'rybbit_config.dart';
 import 'version.dart';
 
@@ -456,11 +457,22 @@ class RybbitFlutter with WidgetsBindingObserver {
 
   /// Gets a route observer for automatic screen tracking.
   ///
-  /// Add this to your MaterialApp's navigatorObservers to automatically
-  /// track screen navigation events.
+  /// Add this to your MaterialApp's navigatorObservers to track every pushed,
+  /// replaced or revealed page as a screen view. Give your routes a
+  /// [RouteSettings.name]; unnamed routes, dialogs and bottom sheets are not
+  /// tracked. Does nothing until the SDK is initialized, or when
+  /// [RybbitConfig.trackScreenViews] is false.
   RouteObserver<PageRoute<dynamic>> get routeObserver {
-    _routeObserver ??= _RybbitRouteObserver(this);
-    return _routeObserver!;
+    return _routeObserver ??= RybbitRouteObserver(
+      isEnabled: () => _initialized && _config.trackScreenViews,
+      onScreenView: (name) {
+        unawaited(
+          trackPageView(pathname: name, pageTitle: name).catchError((Object e) {
+            _log('Failed to track screen view: $e');
+          }),
+        );
+      },
+    );
   }
 
   Map<String, String> _buildHeaders() => buildRequestHeaders(
@@ -652,38 +664,5 @@ class RybbitFlutter with WidgetsBindingObserver {
     if (_identityStore != null) unawaited(_identityStore!.dispose());
     _httpClient.close();
     _initialized = false;
-  }
-}
-
-class _RybbitRouteObserver extends RouteObserver<PageRoute<dynamic>> {
-  final RybbitFlutter _rybbit;
-
-  _RybbitRouteObserver(this._rybbit);
-
-  @override
-  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
-    super.didPush(route, previousRoute);
-    if (route is PageRoute && _rybbit._config.trackScreenViews) {
-      final routeName = route.settings.name ?? '/unknown';
-      _rybbit.trackPageView(pathname: routeName, pageTitle: routeName);
-    }
-  }
-
-  @override
-  void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
-    super.didReplace(newRoute: newRoute, oldRoute: oldRoute);
-    if (newRoute is PageRoute && _rybbit._config.trackScreenViews) {
-      final routeName = newRoute.settings.name ?? '/unknown';
-      _rybbit.trackPageView(pathname: routeName, pageTitle: routeName);
-    }
-  }
-
-  @override
-  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
-    super.didPop(route, previousRoute);
-    if (previousRoute is PageRoute && _rybbit._config.trackScreenViews) {
-      final routeName = previousRoute.settings.name ?? '/unknown';
-      _rybbit.trackPageView(pathname: routeName, pageTitle: routeName);
-    }
   }
 }

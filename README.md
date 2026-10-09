@@ -76,6 +76,19 @@ MaterialApp(
 )
 ```
 
+The observer tracks a screen view whenever a page is pushed, replaced or revealed by going back. It uses the route's name as the path, so give your routes one:
+
+```dart
+Navigator.of(context).push(
+  MaterialPageRoute(
+    settings: const RouteSettings(name: '/products/detail'),
+    builder: (_) => const ProductDetailScreen(),
+  ),
+);
+```
+
+Routes without a name are skipped, and opening or closing a dialog or bottom sheet is not a screen view. Nothing is tracked before `initialize()` completes or when `trackScreenViews` is `false`.
+
 ### 4. Start Tracking
 
 ```dart
