@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.8.1] - 2026-10-09
 
 ### Fixed
 - **The route observer crashed navigation before `initialize()`.** It read the config before the SDK was set up, so pushing a page threw a `LateInitializationError`. Apps that only initialize analytics in some builds or flavors hit this. It now does nothing until the SDK is initialized

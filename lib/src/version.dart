@@ -1,7 +1,7 @@
 /// The version of this package, sent in the default User-Agent.
 ///
 /// Keep in sync with `version` in pubspec.yaml; a test checks this.
-const rybbitFlutterVersion = '0.8.0';
+const rybbitFlutterVersion = '0.8.1';
 
 /// User-Agent used when no device-specific one could be built.
 ///
