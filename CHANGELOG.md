@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] - 2026-10-15
+
+### Added
+- **Properties on pageviews.** `trackPageView` takes `properties`, for context that belongs to the view itself, such as the selected tab. Rybbit has always accepted them; the SDK just never sent them
+- **Button clicks.** New `trackButtonClick(text, properties: …)` sends Rybbit's `button_click` type. `text` is always set as a property, because Rybbit matches button-click goals and funnel steps against it
+
 ## [0.8.1] - 2026-10-09
 
 ### Fixed
