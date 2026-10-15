@@ -225,11 +225,13 @@ class RybbitFlutter with WidgetsBindingObserver {
   /// [pageTitle] - Optional page title
   /// [referrer] - Optional referrer URL
   /// [queryParams] - Optional query parameters as key-value pairs
+  /// [properties] - Optional context for the view, such as the selected tab
   Future<void> trackPageView({
     required String pathname,
     String? pageTitle,
     String? referrer,
     Map<String, String>? queryParams,
+    Map<String, dynamic>? properties,
   }) async {
     _ensureInitialized();
 
@@ -243,6 +245,7 @@ class RybbitFlutter with WidgetsBindingObserver {
 
     final event = TrackEvent.pageview(
       siteId: _config.siteId,
+      properties: properties,
       pathname: pathname,
       hostname: _hostname,
       pageTitle: pageTitle,
@@ -285,6 +288,47 @@ class RybbitFlutter with WidgetsBindingObserver {
     final event = TrackEvent.customEvent(
       siteId: _config.siteId,
       eventName: eventName,
+      properties: properties,
+      pathname: pathname,
+      hostname: _hostname,
+      pageTitle: pageTitle,
+      screenWidth: screenInfo.width.round(),
+      screenHeight: screenInfo.height.round(),
+      userAgent: _userAgent,
+      userId: _userId,
+      anonymousId: anonymousId,
+      language: PlatformInfo.localeName,
+    );
+
+    await _sendTrackingEvent(event);
+  }
+
+  /// Tracks a button press as Rybbit's `button_click` type.
+  ///
+  /// [text] - Identifies the button. Rybbit matches button-click goals and
+  /// funnel steps against it, so keep it stable (e.g. 'add_to_cart')
+  /// [properties] - Optional extra data for the click
+  /// [pathname] - Optional page path where the button was pressed
+  /// [pageTitle] - Optional page title where the button was pressed
+  Future<void> trackButtonClick(
+    String text, {
+    Map<String, dynamic>? properties,
+    String? pathname,
+    String? pageTitle,
+  }) async {
+    _ensureInitialized();
+
+    if (pathname != null &&
+        PatternMatcher.shouldSkipPath(pathname, _config.skipPatterns)) {
+      _log('Skipping button click for path: $pathname (matches skip pattern)');
+      return;
+    }
+
+    final screenInfo = _getScreenInfo();
+
+    final event = TrackEvent.buttonClick(
+      siteId: _config.siteId,
+      text: text,
       properties: properties,
       pathname: pathname,
       hostname: _hostname,

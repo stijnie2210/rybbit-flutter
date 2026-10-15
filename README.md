@@ -263,12 +263,25 @@ class _HomeScreenState extends State<HomeScreen> {
       pathname: '/home',
       pageTitle: 'Home Screen',
       queryParams: {
-        'tab': 'featured',
         'source': 'navigation',
       },
+      // Context for the view itself, filterable in Rybbit
+      properties: {'tab_name': 'featured', 'tab_index': 0},
     );
   }
 }
+```
+
+### Button Clicks
+
+Button presses can be sent as Rybbit's `button_click` type instead of a custom event. Rybbit matches button-click goals and funnel steps against the `text` property, which the SDK sets to the first argument:
+
+```dart
+await RybbitFlutter.instance.trackButtonClick(
+  'add_to_cart',
+  properties: {'product_id': 'SKU-123', 'quantity': 2},
+  pathname: '/products/SKU-123',
+);
 ```
 
 ### E-commerce Tracking

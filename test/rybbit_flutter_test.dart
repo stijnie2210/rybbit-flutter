@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -201,6 +202,57 @@ void main() {
       expect(event.pageTitle, 'Test Page');
       expect(event.eventName, null);
       expect(event.properties, null);
+    });
+
+    test('sends pageview properties as a JSON string', () {
+      final json = TrackEvent.pageview(
+        siteId: '123',
+        pathname: '/home',
+        properties: {'tab_name': 'Nieuw', 'tab_index': 1},
+      ).toJson();
+
+      expect(json['type'], 'pageview');
+      expect(json.containsKey('event_name'), isFalse);
+      expect(jsonDecode(json['properties'] as String), {
+        'tab_name': 'Nieuw',
+        'tab_index': 1,
+      });
+    });
+
+    test('omits properties from a pageview without them', () {
+      final json = TrackEvent.pageview(
+        siteId: '123',
+        pathname: '/home',
+      ).toJson();
+
+      expect(json.containsKey('properties'), isFalse);
+    });
+
+    test('creates button click with text as event name and property', () {
+      final json = TrackEvent.buttonClick(
+        siteId: '123',
+        text: 'add_to_cart',
+        properties: {'quantity': 2},
+        pathname: '/products/SKU-1',
+      ).toJson();
+
+      expect(json['type'], 'button_click');
+      expect(json['event_name'], 'add_to_cart');
+      expect(json['pathname'], '/products/SKU-1');
+      expect(jsonDecode(json['properties'] as String), {
+        'quantity': 2,
+        'text': 'add_to_cart',
+      });
+    });
+
+    test('button click text wins over a text property', () {
+      final event = TrackEvent.buttonClick(
+        siteId: '123',
+        text: 'add_to_cart',
+        properties: {'text': 'other'},
+      );
+
+      expect(event.properties!['text'], 'add_to_cart');
     });
 
     test('creates custom event', () {

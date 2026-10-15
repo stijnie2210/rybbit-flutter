@@ -13,6 +13,9 @@ enum EventType {
 
   /// An error tracking event for capturing application errors.
   error,
+
+  /// A button press, sent as Rybbit's `button_click` type.
+  buttonClick,
 }
 
 /// Represents a tracking event that can be sent to Rybbit Analytics.
@@ -103,8 +106,10 @@ class TrackEvent {
   /// Creates a pageview tracking event.
   ///
   /// Used to track when users visit different screens or pages in your app.
+  /// [properties] adds context to the view, such as the selected tab.
   TrackEvent.pageview({
     required this.siteId,
+    this.properties,
     this.pathname,
     this.hostname,
     this.pageTitle,
@@ -118,8 +123,7 @@ class TrackEvent {
     this.userAgent,
     this.ipAddress,
   }) : type = EventType.pageview,
-       eventName = null,
-       properties = null;
+       eventName = null;
 
   /// Creates a custom event for tracking user interactions.
   ///
@@ -141,6 +145,30 @@ class TrackEvent {
     this.userAgent,
     this.ipAddress,
   }) : type = EventType.customEvent;
+
+  /// Creates a button click event.
+  ///
+  /// Rybbit matches button-click goals and funnel steps against the `text`
+  /// property, so it is always set to [text].
+  TrackEvent.buttonClick({
+    required this.siteId,
+    required String text,
+    Map<String, dynamic>? properties,
+    this.pathname,
+    this.hostname,
+    this.pageTitle,
+    this.referrer,
+    this.userId,
+    this.anonymousId,
+    this.queryParams,
+    this.language,
+    this.screenWidth,
+    this.screenHeight,
+    this.userAgent,
+    this.ipAddress,
+  }) : type = EventType.buttonClick,
+       eventName = text,
+       properties = {...?properties, 'text': text};
 
   /// Creates an outbound link tracking event.
   ///
@@ -214,13 +242,11 @@ class TrackEvent {
     if (userAgent != null) json['user_agent'] = userAgent;
     if (ipAddress != null) json['ip_address'] = ipAddress;
 
-    if (type == EventType.customEvent ||
-        type == EventType.outbound ||
-        type == EventType.error) {
-      if (eventName != null) json['event_name'] = eventName;
-      if (properties != null) {
-        json['properties'] = jsonEncode(properties);
-      }
+    if (eventName != null && type != EventType.pageview) {
+      json['event_name'] = eventName;
+    }
+    if (properties != null) {
+      json['properties'] = jsonEncode(properties);
     }
 
     return json;
@@ -236,6 +262,8 @@ class TrackEvent {
         return 'outbound';
       case EventType.error:
         return 'error';
+      case EventType.buttonClick:
+        return 'button_click';
     }
   }
 
